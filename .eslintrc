@@ -1,0 +1,35 @@
+{
+  "extends": [
+    "airbnb",
+    "airbnb-typescript",
+    "airbnb/hooks"
+  ],
+  "parserOptions": {
+    "project": [
+      "./tsconfig.json",
+      "./tsconfig.node.json"
+    ]
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": { }
+    }
+  },
+  "rules": {
+    "no-param-reassign": [
+      "error", {
+        "props": true,
+        "ignorePropertyModificationsFor": ["draft"]
+      }
+    ],
+    "max-len": ["error", { "code": 120 }],
+    "react/require-default-props": "off",
+    "object-curly-newline": "off",
+    "react/jsx-one-expression-per-line": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/click-events-have-key-event": "off",
+    "react/button-has-type": "off",
+    "jsx-a11y/control-has-associated-label": "off"
+  }
+}
