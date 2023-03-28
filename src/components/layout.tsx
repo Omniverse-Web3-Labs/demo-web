@@ -1,4 +1,6 @@
-import React, { ReactNode } from 'react';
+import React, {
+  ReactNode,
+} from 'react';
 import {
   Outlet,
 } from 'react-router-dom';
@@ -24,10 +26,19 @@ import {
 import { map } from 'lodash/fp';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import 'antd/dist/reset.css';
+import { useAppSelector } from '@/redux';
+import { selectEntities } from '@/redux/account';
 
 const injectedConnector = new InjectedConnector();
 
 export default function Layout() {
+  const {
+    account: {
+      publicKey,
+    },
+  } = useAppSelector((state) => ({
+    account: selectEntities(state),
+  }));
   const { chain } = useNetwork();
   const { switchNetworkAsync } = useSwitchNetwork();
   const { isConnected, address } = useAccount();
@@ -35,6 +46,7 @@ export default function Layout() {
     connector: injectedConnector,
   });
   const { disconnect } = useDisconnect();
+
   const bscTestnetBalance = useBalance({
     address,
     enabled: !!address,
@@ -60,6 +72,7 @@ export default function Layout() {
         <div>
           <p>Current Chain: {chain?.name}</p>
           <p>Address: {address}</p>
+          <p>Public Key: {publicKey}</p>
           <p>Token Address: {chain && tokenAddressMap[chain.id]}</p>
           <p>bscTestnet Balance: {bscTestnetBalance.data?.formatted}</p>
           <p>moonbaseAlpha Balance: {moonbaseAlphaBalance.data?.formatted}</p>
