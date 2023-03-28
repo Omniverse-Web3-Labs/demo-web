@@ -2,10 +2,12 @@ import {
   createAsyncThunk,
   createReducer,
 } from '@reduxjs/toolkit';
+import { extractPublicKey } from '@metamask/eth-sig-util';
 import {
+  reject,
+  eq,
   prop,
 } from 'lodash/fp';
-import { extractPublicKey } from '@metamask/eth-sig-util';
 import type { RootState } from './index';
 
 export interface Account {
@@ -56,17 +58,11 @@ const reducer = createReducer<Account>({ addressesInFetching: [] }, (builder) =>
     draft.addressesInFetching.push(address);
   });
   builder.addCase(readPublicKey.rejected, (draft, { meta: { arg: { address } } }) => {
-    const index = draft.addressesInFetching.findIndex((current) => current === address);
-    if (index !== -1) {
-      draft.addressesInFetching.splice(index, 1);
-    }
+    draft.addressesInFetching = reject(eq(address))(draft.addressesInFetching);
   });
   builder.addCase(readPublicKey.fulfilled, (draft, { payload, meta: { arg: { address } } }) => {
     draft.publicKey = payload;
-    const index = draft.addressesInFetching.findIndex((current) => current === address);
-    if (index !== -1) {
-      draft.addressesInFetching.splice(index, 1);
-    }
+    draft.addressesInFetching = reject(eq(address))(draft.addressesInFetching);
   });
 });
 
