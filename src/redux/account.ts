@@ -18,13 +18,13 @@ export interface Account {
 export const namespace = 'account';
 export const selectEntities = prop<RootState, 'account'>(namespace);
 
-export const readPublicKey = createAsyncThunk<string, {
+export const readPublicKey = createAsyncThunk<`0x${string}`, {
   address: `0x${string}`;
 }, { state: RootState }>(
   `${namespace}/readPublicKey`,
   async ({ address }: { address: `0x${string}` }) => {
     const publicKeyMap = window.localStorage.getItem('publicKeyMap');
-    let newPublicKeyMap: Record<string, string> = {};
+    let newPublicKeyMap: Record<string, `0x${string}`> = {};
     if (publicKeyMap) {
       newPublicKeyMap = JSON.parse(publicKeyMap);
       if (newPublicKeyMap[address]) {
@@ -37,7 +37,7 @@ export const readPublicKey = createAsyncThunk<string, {
     const publicKey = extractPublicKey({
       data: message,
       signature,
-    });
+    }) as `0x${string}`;
     newPublicKeyMap[address] = publicKey;
     window.localStorage.setItem('publicKeyMap', JSON.stringify(newPublicKeyMap));
     return publicKey;
