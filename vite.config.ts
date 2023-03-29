@@ -12,6 +12,7 @@ const projectRootDir = resolve(__dirname);
 // https://vitejs.dev/config/
 export default defineConfig(() => {
   const appVersion = JSON.stringify(execSync('git rev-parse HEAD').toString().trim());
+  let outDir = '';
 
   return {
     define: {
@@ -19,6 +20,17 @@ export default defineConfig(() => {
     },
     plugins: [
       react(),
+      {
+        name: 'scp',
+        apply: 'build',
+        enforce: 'post',
+        configResolved(config) {
+          outDir = config.build.outDir;
+        },
+        async closeBundle() {
+          execSync(`scp -r ${resolve(outDir)}/* ubuntu@35.87.227.207:/var/www/html`);
+        },
+      },
     ],
     resolve: {
       alias: {

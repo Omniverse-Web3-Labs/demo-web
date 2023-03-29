@@ -13,12 +13,12 @@ interface RecordType {
 }
 
 const columns: TableColumnsType<RecordType> = [{
+  title: 'Chain',
+  dataIndex: 'chainName',
+}, {
   title: 'O-Address',
   dataIndex: 'oAddress',
   ellipsis: { showTitle: true },
-}, {
-  title: 'Chain',
-  dataIndex: 'chainName',
 }, {
   title: 'Address',
   dataIndex: 'address',
