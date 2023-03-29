@@ -11,7 +11,7 @@ import {
 import type { RootState } from './index';
 
 export interface Account {
-  publicKey?: string
+  publicKey?: `0x${string}`
   addressesInFetching: string[]
 }
 
