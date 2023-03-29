@@ -1,14 +1,15 @@
 import React, { useMemo } from 'react';
 import { Table, TableColumnsType } from 'antd';
 import { chains, Chain } from '@/constants/chains';
-import { map } from 'lodash/fp';
+import { map, flow, concat } from 'lodash/fp';
 import { useAppSelector } from '@/redux';
 import { selectEntities } from '@/redux/account';
 import { useAccount } from 'wagmi';
+import { getPolkadotAddressFromPubKey } from '@/utils/public-key';
 
 interface RecordType {
-  oAddress?: string
   chainName: string
+  oAddress?: string
   address?: string
 }
 
@@ -29,11 +30,18 @@ export default function Layout() {
     publicKey: selectEntities(state).publicKey,
   }));
   const { address } = useAccount();
-  const dataSource = useMemo(() => map<Chain, RecordType>(({ name }) => ({
-    oAddress: publicKey,
-    chainName: name,
-    address,
-  }))(chains), [address, publicKey]);
+  const dataSource = useMemo(() => flow(
+    map<Chain, RecordType>(({ name }) => ({
+      chainName: name,
+      oAddress: publicKey,
+      address,
+    })),
+    concat<RecordType>({
+      chainName: 'Substrate',
+      oAddress: publicKey,
+      address: publicKey ? getPolkadotAddressFromPubKey(publicKey) : '',
+    }),
+  )(chains), [address, publicKey]);
 
   return (
     <div>
