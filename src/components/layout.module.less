@@ -1,0 +1,52 @@
+@import "./varaibles";
+
+.Header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: @desktop-max-width;
+  margin: 0 auto;
+  height: 64px;
+
+  h1 {
+    font-size: 24px;
+    color: white;
+    margin: 0;
+  }
+}
+
+.Operations {
+  display: flex;
+}
+
+.Address {
+  color: white;
+  margin-right: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  border-radius: 100px;
+
+  svg {
+    margin-right: 10px;
+    font-size: 18px;
+  }
+}
+
+.ContentContainer {
+  background: white;
+}
+
+.Content {
+  width: @desktop-max-width;
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
+.Footer {
+  width: @desktop-max-width;
+  margin: 0 auto;
+  text-align: center;
+}

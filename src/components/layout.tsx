@@ -1,119 +1,73 @@
 import React, {
-  ReactNode,
+  useCallback,
 } from 'react';
 import {
   Outlet,
 } from 'react-router-dom';
 import {
   ConfigProvider,
+  Layout as AntdLayout,
+  Button,
 } from 'antd';
 import {
   useAccount,
-  useBalance,
   useConnect,
   useDisconnect,
-  useNetwork,
-  useSwitchNetwork,
 } from 'wagmi';
-import {
-  tokenAddressMap,
-  chains,
-  Chain,
-  bscTestnet,
-  moonbaseAlpha,
-  platON,
-} from '@/constants/chains';
-import { map } from 'lodash/fp';
 import { InjectedConnector } from 'wagmi/connectors/injected';
+import { WalletOutlined } from '@ant-design/icons';
+import { ellipsis } from '@/utils/formatter';
 import 'antd/dist/reset.css';
-import { useAppSelector } from '@/redux';
-import { selectEntities } from '@/redux/account';
+import './global.less';
+import s from './layout.module.less';
 
 const injectedConnector = new InjectedConnector();
 
+const { Header, Content, Footer } = AntdLayout;
+
 export default function Layout() {
-  const {
-    account: {
-      publicKey,
-    },
-  } = useAppSelector((state) => ({
-    account: selectEntities(state),
-  }));
-  const { chain } = useNetwork();
-  const { switchNetworkAsync } = useSwitchNetwork();
   const { isConnected, address } = useAccount();
   const { connect } = useConnect({
     connector: injectedConnector,
   });
   const { disconnect } = useDisconnect();
-
-  const bscTestnetBalance = useBalance({
-    address,
-    enabled: !!address,
-    chainId: bscTestnet.id,
-    token: tokenAddressMap[bscTestnet.id],
-  });
-  const moonbaseAlphaBalance = useBalance({
-    address,
-    enabled: !!address,
-    chainId: moonbaseAlpha.id,
-    token: tokenAddressMap[moonbaseAlpha.id],
-  });
-  const platONBalance = useBalance({
-    address,
-    enabled: !!address,
-    chainId: platON.id,
-    token: tokenAddressMap[platON.id],
-  });
+  const toggleConnection = useCallback(() => {
+    if (isConnected) {
+      disconnect();
+    } else {
+      connect();
+    }
+  }, [isConnected, disconnect, connect]);
 
   return (
     <ConfigProvider>
-      <div>
-        <div>
-          <p>Current Chain: {chain?.name}</p>
-          <p>Address: {address}</p>
-          <p>Public Key: {publicKey}</p>
-          <p>Token Address: {chain && tokenAddressMap[chain.id]}</p>
-          <p>bscTestnet Balance: {bscTestnetBalance.data?.formatted}</p>
-          <p>moonbaseAlpha Balance: {moonbaseAlphaBalance.data?.formatted}</p>
-          <p>platON Balance: {platONBalance.data?.formatted}</p>
-          <p>
-            <button
-              onClick={() => {
-                if (isConnected) {
-                  disconnect();
-                } else {
-                  connect();
-                }
-              }}
+      <Header>
+        <div className={s.Header}>
+          <h1>
+            Omniverse Lab
+          </h1>
+          <div className={s.Operations}>
+            {address && <div className={s.Address}><WalletOutlined /> {ellipsis({ endLength: 12 })(address)}</div>}
+            <Button
+              onClick={toggleConnection}
+              type="primary"
+              size="large"
             >
-              {isConnected ? 'Disconnect' : 'Connect'}
-            </button>
-          </p>
-          <p>
-            <select
-              value={chain?.id.toString()}
-              onChange={async ({ target: { value } }) => {
-                if (chain && switchNetworkAsync && value !== chain.id.toString()) {
-                  await switchNetworkAsync(chain.id);
-                }
-              }}
-            >
-              {map<Chain, ReactNode>(({ id, name }) => (
-                <option value={id} key={id}>{name}</option>
-              ))(chains)}
-            </select>
-          </p>
+              { isConnected ? 'Disconnect' : 'Connect' }
+            </Button>
+          </div>
         </div>
-
-        <div>
+      </Header>
+      <Content className={s.ContentContainer}>
+        <div className={s.Content}>
           <Outlet />
         </div>
-
-        <div>
-          Footer
+      </Content>
+      <Footer>
+        <div className={s.Footer}>
+          Omniverse Lab ©2023
         </div>
-      </div>
+      </Footer>
     </ConfigProvider>
   );
 }
