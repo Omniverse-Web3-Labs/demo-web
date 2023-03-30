@@ -15,7 +15,10 @@ import {
 } from 'wagmi/chains';
 import {
   platON,
-  tokenAddressMap,
+  FtTokenAddressMap,
+  FtTokenId,
+  NftTokenId,
+  NftTokenAddressMap,
 } from '@/constants/chains';
 import {
   map,
@@ -30,7 +33,7 @@ import {
   useContractReads,
 } from 'wagmi';
 import { getPolkadotAddressFromPubKey } from '@/utils/public-key';
-import { ftAbi } from '@/constants/abi';
+import { ftAbi, nftAbi } from '@/constants/abi';
 import { ApiPromise, HttpProvider } from '@polkadot/api';
 import { utils } from 'ethers';
 import s from './index.module.less';
@@ -48,9 +51,13 @@ interface FTRecordType {
   oBalance?: string
 }
 
-const httpProvider = new HttpProvider('http://35.158.224.2:9911');
+interface NFTRecordType {
+  chainName: string
+  tokenId: string
+  noNonce?: string
+}
 
-const tokenId = 'MFT';
+const httpProvider = new HttpProvider('http://35.158.224.2:9911');
 
 const accountColumns: TableColumnsType<AccountRecordType> = [{
   title: 'Chain',
@@ -79,6 +86,17 @@ const ftColumns: TableColumnsType<FTRecordType> = [{
   dataIndex: 'oBalance',
 }];
 
+const nftColumns: TableColumnsType<NFTRecordType> = [{
+  title: 'Chain',
+  dataIndex: 'chainName',
+}, {
+  title: 'Token ID',
+  dataIndex: 'tokenId',
+}, {
+  title: 'NO-Nonce',
+  dataIndex: 'noNonce',
+}];
+
 export default function Layout() {
   const { publicKey } = useAppSelector((state) => ({
     publicKey: selectEntities(state).publicKey,
@@ -99,22 +117,46 @@ export default function Layout() {
   const { data, isSuccess } = useContractReads({
     enabled: !!publicKey,
     contracts: [{
-      address: '0x1181E9bBb48a5448c81CF1A2532A3D4257C69E22',
+      address: FtTokenAddressMap[platON.id],
       functionName: 'getTransactionCount',
       chainId: platON.id,
       abi: ftAbi,
       args: [publicKey!],
     }, {
-      address: '0x4B89eBA967d8333C6664F42A18EE5fb42e22a0dA',
+      address: FtTokenAddressMap[moonbaseAlpha.id],
       functionName: 'getTransactionCount',
       chainId: moonbaseAlpha.id,
       abi: ftAbi,
       args: [publicKey!],
     }, {
-      address: '0x7c52b6e88c9Cc397d82506b9e4df6D7D06674934',
+      address: FtTokenAddressMap[bscTestnet.id],
       functionName: 'getTransactionCount',
       chainId: bscTestnet.id,
       abi: ftAbi,
+      args: [publicKey!],
+    }, {
+      address: NftTokenAddressMap[platON.id],
+      functionName: 'getTransactionCount',
+      chainId: platON.id,
+      abi: nftAbi,
+      args: [publicKey!],
+    }, {
+      address: NftTokenAddressMap[moonbaseAlpha.id],
+      functionName: 'getTransactionCount',
+      chainId: moonbaseAlpha.id,
+      abi: nftAbi,
+      args: [publicKey!],
+    }, {
+      address: NftTokenAddressMap[bscTestnet.id],
+      functionName: 'getTransactionCount',
+      chainId: bscTestnet.id,
+      abi: nftAbi,
+      args: [publicKey!],
+    }, {
+      address: NftTokenAddressMap[goerli.id],
+      functionName: 'getTransactionCount',
+      chainId: goerli.id,
+      abi: nftAbi,
       args: [publicKey!],
     }],
   });
@@ -122,25 +164,30 @@ export default function Layout() {
     address,
     enabled: !!address,
     chainId: bscTestnet.id,
-    token: tokenAddressMap[bscTestnet.id],
+    token: FtTokenAddressMap[bscTestnet.id],
   });
   const moonbaseAlphaBalance = useBalance({
     address,
     enabled: !!address,
     chainId: moonbaseAlpha.id,
-    token: tokenAddressMap[moonbaseAlpha.id],
+    token: FtTokenAddressMap[moonbaseAlpha.id],
   });
   const platONBalance = useBalance({
     address,
     enabled: !!address,
     chainId: platON.id,
-    token: tokenAddressMap[platON.id],
+    token: FtTokenAddressMap[platON.id],
   });
-  const oNonceMap: Record<string, string> = {};
+  const ftONonceMap: Record<string, string> = {};
+  const nftONonceMap: Record<string, string> = {};
   if (isSuccess && data) {
-    oNonceMap[platON.id] = data[0].toString();
-    oNonceMap[moonbaseAlpha.id] = data[1].toString();
-    oNonceMap[bscTestnet.id] = data[2].toString();
+    ftONonceMap[platON.id] = data[0]?.toString();
+    ftONonceMap[moonbaseAlpha.id] = data[1]?.toString();
+    ftONonceMap[bscTestnet.id] = data[2]?.toString();
+    nftONonceMap[platON.id] = data[3]?.toString();
+    nftONonceMap[moonbaseAlpha.id] = data[4]?.toString();
+    nftONonceMap[bscTestnet.id] = data[5]?.toString();
+    nftONonceMap[goerli.id] = data[6]?.toString();
   }
   const oBalanceMap: Record<string, string> = {};
   if (bscTestnetBalance.isSuccess && bscTestnetBalance.data) {
@@ -152,7 +199,8 @@ export default function Layout() {
   if (platONBalance.isSuccess && platONBalance.data) {
     oBalanceMap[platON.id] = platONBalance.data.formatted;
   }
-  const [polkadotTransactionCount, setPolkadotTransactionCount] = useState<string | undefined>();
+  const [ftTransactionCount, setFtTransactionCount] = useState<string | undefined>();
+  const [nftTransactionCount, setNftTransactionCount] = useState<string | undefined>();
   const [polkadotBalance, setPolkadotBalance] = useState<string | undefined>();
   useEffect(() => {
     const fetchPolkadotTransactionCount = async () => {
@@ -161,14 +209,22 @@ export default function Layout() {
         api.query.omniverseProtocol.transactionCount(
           publicKey,
           'assets',
-          tokenId,
+          FtTokenId,
         ).then((count) => {
-          setPolkadotTransactionCount(count.toString());
+          setFtTransactionCount(count.toString());
+        });
+
+        api.query.omniverseProtocol.transactionCount(
+          publicKey,
+          'assets',
+          NftTokenId,
+        ).then((count) => {
+          setNftTransactionCount(count.toString());
         });
 
         Promise.all([
-          api.query.assets.tokens(tokenId, publicKey),
-          api.query.assets.tokenId2AssetId(tokenId).then((assetId) => api.query.assets.metadata(assetId.toJSON())),
+          api.query.assets.tokens(FtTokenId, publicKey),
+          api.query.assets.tokenId2AssetId(FtTokenId).then((assetId) => api.query.assets.metadata(assetId.toJSON())),
         ]).then(([balance, metadata]) => {
           setPolkadotBalance(utils.formatUnits(balance.toString(), (metadata as any).decimals.toJSON()));
         });
@@ -180,17 +236,30 @@ export default function Layout() {
   const ftDataSource = flow(
     map<Chain, FTRecordType>(({ id, name }) => ({
       chainName: name,
-      tokenId,
-      oNonce: oNonceMap[id],
+      tokenId: FtTokenId,
+      oNonce: ftONonceMap[id],
       oBalance: oBalanceMap[id],
     })),
     concat<FTRecordType>({
       chainName: 'Substrate',
-      tokenId,
-      oNonce: polkadotTransactionCount,
+      tokenId: FtTokenId,
+      oNonce: ftTransactionCount,
       oBalance: polkadotBalance,
     }),
   )([platON, moonbaseAlpha, bscTestnet]);
+
+  const nftDataSource = flow(
+    map<Chain, NFTRecordType>(({ id, name }) => ({
+      chainName: name,
+      tokenId: NftTokenId,
+      noNonce: nftONonceMap[id],
+    })),
+    concat<NFTRecordType>({
+      chainName: 'Substrate',
+      tokenId: NftTokenId,
+      noNonce: nftTransactionCount,
+    }),
+  )([platON, moonbaseAlpha, bscTestnet, goerli]);
 
   return (
     <div>
@@ -206,6 +275,14 @@ export default function Layout() {
       <Table<FTRecordType>
         dataSource={ftDataSource}
         columns={ftColumns}
+        rowKey="chainName"
+        pagination={false}
+      />
+
+      <h2 className={s.Title}>Omniverse Non-Fungible Token</h2>
+      <Table<NFTRecordType>
+        dataSource={nftDataSource}
+        columns={nftColumns}
         rowKey="chainName"
         pagination={false}
       />
