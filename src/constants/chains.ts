@@ -29,7 +29,7 @@ export const platON: Chain = {
   },
 };
 
-export const chains = [bscTestnet, moonbaseAlpha, platON];
+export const chains = [bscTestnet, moonbaseAlpha, platON, goerli];
 
 export const FtTokenAddressMap: Record<string, `0x${string}`> = {
   [bscTestnet.id]: '0x7c52b6e88c9Cc397d82506b9e4df6D7D06674934',

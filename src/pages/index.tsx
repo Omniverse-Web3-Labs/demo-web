@@ -1,6 +1,5 @@
 import React, {
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import {
@@ -32,17 +31,11 @@ import {
   useBalance,
   useContractReads,
 } from 'wagmi';
-import { getPolkadotAddressFromPubKey } from '@/utils/public-key';
 import { ftAbi, nftAbi } from '@/constants/abi';
 import { ApiPromise, HttpProvider } from '@polkadot/api';
 import { utils } from 'ethers';
+import Account from './components/account';
 import s from './index.module.less';
-
-interface AccountRecordType {
-  chainName: string
-  oAddress?: string
-  address?: string
-}
 
 interface FTRecordType {
   chainName: string
@@ -58,19 +51,6 @@ interface NFTRecordType {
 }
 
 const httpProvider = new HttpProvider('http://35.158.224.2:9911');
-
-const accountColumns: TableColumnsType<AccountRecordType> = [{
-  title: 'Chain',
-  dataIndex: 'chainName',
-}, {
-  title: 'O-Address',
-  dataIndex: 'oAddress',
-  className: s.BreakWord,
-}, {
-  title: 'Address',
-  dataIndex: 'address',
-  className: s.BreakWord,
-}];
 
 const ftColumns: TableColumnsType<FTRecordType> = [{
   title: 'Chain',
@@ -102,18 +82,6 @@ export default function Layout() {
     publicKey: selectEntities(state).publicKey,
   }));
   const { address } = useAccount();
-  const accountDataSource = useMemo(() => flow(
-    map<Chain, AccountRecordType>(({ name }) => ({
-      chainName: name,
-      oAddress: publicKey,
-      address,
-    })),
-    concat<AccountRecordType>({
-      chainName: 'Substrate',
-      oAddress: publicKey,
-      address: publicKey ? getPolkadotAddressFromPubKey(publicKey) : '',
-    }),
-  )([bscTestnet, goerli, moonbaseAlpha, platON]), [address, publicKey]);
   const { data, isSuccess } = useContractReads({
     enabled: !!publicKey,
     contracts: [{
@@ -262,14 +230,8 @@ export default function Layout() {
   )([platON, moonbaseAlpha, bscTestnet, goerli]);
 
   return (
-    <div>
-      <h2 className={s.Title}>账号信息</h2>
-      <Table<AccountRecordType>
-        dataSource={accountDataSource}
-        columns={accountColumns}
-        rowKey="chainName"
-        pagination={false}
-      />
+    <div className={s.Index}>
+      <Account publicKey={publicKey} address={address} />
 
       <h2 className={s.Title}>Omniverse Fungible Token</h2>
       <Table<FTRecordType>
