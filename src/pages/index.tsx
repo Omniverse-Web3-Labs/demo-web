@@ -48,7 +48,6 @@ interface FTRecordType {
 }
 
 const httpProvider = new HttpProvider('http://35.158.224.2:9911');
-const api = await ApiPromise.create({ provider: httpProvider, noInitWarn: true });
 
 const tokenId = 'MFT';
 
@@ -156,6 +155,7 @@ export default function Layout() {
   const [polkadotBalance, setPolkadotBalance] = useState<string | undefined>();
   useEffect(() => {
     const fetchPolkadotTransactionCount = async () => {
+      const api = await ApiPromise.create({ provider: httpProvider, noInitWarn: true });
       if (publicKey) {
         const count = await api.query.omniverseProtocol.transactionCount(
           publicKey,
