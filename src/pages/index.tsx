@@ -1,4 +1,8 @@
-import React, { useMemo } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   Table,
   TableColumnsType,
@@ -27,6 +31,7 @@ import {
 } from 'wagmi';
 import { getPolkadotAddressFromPubKey } from '@/utils/public-key';
 import { ftAbi } from '@/constants/abi';
+import { ApiPromise, HttpProvider } from '@polkadot/api';
 import s from './index.module.less';
 
 interface AccountRecordType {
@@ -38,9 +43,14 @@ interface AccountRecordType {
 interface FTRecordType {
   chainName: string
   tokenId: string
-  oNonce: string
-  oBalance: string
+  oNonce?: string
+  oBalance?: string
 }
+
+const httpProvider = new HttpProvider('http://35.158.224.2:9911');
+const api = await ApiPromise.create({ provider: httpProvider, noInitWarn: true });
+
+const tokenId = 'MFT';
 
 const accountColumns: TableColumnsType<AccountRecordType> = [{
   title: 'Chain',
@@ -48,10 +58,11 @@ const accountColumns: TableColumnsType<AccountRecordType> = [{
 }, {
   title: 'O-Address',
   dataIndex: 'oAddress',
-  ellipsis: { showTitle: true },
+  className: s.BreakWord,
 }, {
   title: 'Address',
   dataIndex: 'address',
+  className: s.BreakWord,
 }];
 
 const ftColumns: TableColumnsType<FTRecordType> = [{
@@ -141,13 +152,41 @@ export default function Layout() {
   if (platONBalance.isSuccess && platONBalance.data) {
     oBalanceMap[platON.id] = platONBalance.data.formatted;
   }
+  const [polkadotTransactionCount, setPolkadotTransactionCount] = useState<string | undefined>();
+  const [polkadotBalance, setPolkadotBalance] = useState<string | undefined>();
+  useEffect(() => {
+    const fetchPolkadotTransactionCount = async () => {
+      if (publicKey) {
+        const count = await api.query.omniverseProtocol.transactionCount(
+          publicKey,
+          'assets',
+          tokenId,
+        );
+        setPolkadotTransactionCount((count.toJSON() as number).toString());
+
+        const balance = await api.query.assets.tokens(
+          tokenId,
+          publicKey,
+        );
+        setPolkadotBalance((balance.toJSON() as number).toString());
+      }
+    };
+    fetchPolkadotTransactionCount();
+  }, [publicKey]);
+
   const ftDataSource = flow(
     map<Chain, FTRecordType>(({ id, name }) => ({
       chainName: name,
-      tokenId: 'MFT',
+      tokenId,
       oNonce: oNonceMap[id],
       oBalance: oBalanceMap[id],
     })),
+    concat<FTRecordType>({
+      chainName: 'Substrate',
+      tokenId,
+      oNonce: polkadotTransactionCount,
+      oBalance: polkadotBalance,
+    }),
   )([platON, moonbaseAlpha, bscTestnet]);
 
   return (
