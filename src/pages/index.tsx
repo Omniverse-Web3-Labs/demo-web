@@ -32,6 +32,7 @@ import {
 import { getPolkadotAddressFromPubKey } from '@/utils/public-key';
 import { ftAbi } from '@/constants/abi';
 import { ApiPromise, HttpProvider } from '@polkadot/api';
+import { utils } from 'ethers';
 import s from './index.module.less';
 
 interface AccountRecordType {
@@ -157,18 +158,20 @@ export default function Layout() {
     const fetchPolkadotTransactionCount = async () => {
       const api = await ApiPromise.create({ provider: httpProvider, noInitWarn: true });
       if (publicKey) {
-        const count = await api.query.omniverseProtocol.transactionCount(
+        api.query.omniverseProtocol.transactionCount(
           publicKey,
           'assets',
           tokenId,
-        );
-        setPolkadotTransactionCount((count.toJSON() as number).toString());
+        ).then((count) => {
+          setPolkadotTransactionCount(count.toString());
+        });
 
-        const balance = await api.query.assets.tokens(
-          tokenId,
-          publicKey,
-        );
-        setPolkadotBalance((balance.toJSON() as number).toString());
+        Promise.all([
+          api.query.assets.tokens(tokenId, publicKey),
+          api.query.assets.tokenId2AssetId(tokenId).then((assetId) => api.query.assets.metadata(assetId.toJSON())),
+        ]).then(([balance, metadata]) => {
+          setPolkadotBalance(utils.formatUnits(balance.toString(), (metadata as any).decimals.toJSON()));
+        });
       }
     };
     fetchPolkadotTransactionCount();
