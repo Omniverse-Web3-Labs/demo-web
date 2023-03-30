@@ -31,8 +31,14 @@ import {
   useBalance,
   useContractReads,
 } from 'wagmi';
-import { ftAbi, nftAbi } from '@/constants/abi';
-import { ApiPromise, HttpProvider } from '@polkadot/api';
+import {
+  ftAbi,
+  nftAbi,
+} from '@/constants/abi';
+import {
+  ApiPromise,
+  HttpProvider,
+} from '@polkadot/api';
 import { utils } from 'ethers';
 import Account from './components/account';
 import s from './index.module.less';
@@ -48,6 +54,12 @@ interface NFTRecordType {
   chainName: string
   tokenId: string
   noNonce?: string
+}
+
+interface NFTLinkRecordType {
+  id: number
+  openSeaLink: string
+  nftScanLink: string
 }
 
 const httpProvider = new HttpProvider('http://35.158.224.2:9911');
@@ -75,6 +87,22 @@ const nftColumns: TableColumnsType<NFTRecordType> = [{
 }, {
   title: 'NO-Nonce',
   dataIndex: 'noNonce',
+}];
+
+const nftLinkColumns: TableColumnsType<NFTLinkRecordType> = [{
+  title: 'MNFT ID',
+  dataIndex: 'id',
+  width: 100,
+}, {
+  title: 'OpenSea Link',
+  dataIndex: 'openSeaLink',
+  render: (openSeaLink) => <a href={openSeaLink} target="_blank" rel="noreferrer">{openSeaLink}</a>,
+  className: s.BreakWord,
+}, {
+  title: 'NFT Scan Link',
+  dataIndex: 'nftScanLink',
+  render: (nftScanLink) => <a href={nftScanLink} target="_blank" rel="noreferrer">{nftScanLink}</a>,
+  className: s.BreakWord,
 }];
 
 export default function Layout() {
@@ -170,6 +198,7 @@ export default function Layout() {
   const [ftTransactionCount, setFtTransactionCount] = useState<string | undefined>();
   const [nftTransactionCount, setNftTransactionCount] = useState<string | undefined>();
   const [polkadotBalance, setPolkadotBalance] = useState<string | undefined>();
+  const [nftIds, setNftIds] = useState<number[]>([]);
   useEffect(() => {
     const fetchPolkadotTransactionCount = async () => {
       const api = await ApiPromise.create({ provider: httpProvider, noInitWarn: true });
@@ -196,10 +225,16 @@ export default function Layout() {
         ]).then(([balance, metadata]) => {
           setPolkadotBalance(utils.formatUnits(balance.toString(), (metadata as any).decimals.toJSON()));
         });
+
+        api.query.uniques.tokens(NftTokenId, publicKey).then((ids) => {
+          setNftIds(ids.toJSON() as number[]);
+        });
       }
     };
     fetchPolkadotTransactionCount();
   }, [publicKey]);
+
+  console.log(nftIds);
 
   const ftDataSource = flow(
     map<Chain, FTRecordType>(({ id, name }) => ({
@@ -229,6 +264,12 @@ export default function Layout() {
     }),
   )([platON, moonbaseAlpha, bscTestnet, goerli]);
 
+  const nftLinkDataSource = map<number, NFTLinkRecordType>((id) => ({
+    id,
+    openSeaLink: `https://testnets.opensea.io/assets/goerli/${NftTokenAddressMap[goerli.id]}/${id}`,
+    nftScanLink: `https://platon.nftscan.com/${NftTokenAddressMap[platON.id]}/${id}`,
+  }))(nftIds);
+
   return (
     <div className={s.Index}>
       <Account publicKey={publicKey} address={address} />
@@ -246,6 +287,14 @@ export default function Layout() {
         dataSource={nftDataSource}
         columns={nftColumns}
         rowKey="chainName"
+        pagination={false}
+      />
+
+      <h2 className={s.Title}>Omniverse Non-Fungible Token List</h2>
+      <Table<NFTLinkRecordType>
+        dataSource={nftLinkDataSource}
+        columns={nftLinkColumns}
+        rowKey="id"
         pagination={false}
       />
     </div>
