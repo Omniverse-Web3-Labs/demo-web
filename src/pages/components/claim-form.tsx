@@ -37,11 +37,21 @@ const defaultValues: ValuesType = {
   tokenId: FtTokenId,
 };
 
+interface ClaimResponse {
+  code: 0 | -1
+  message: string
+}
+
 export default function ClaimForm({ publicKey }: ClaimFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const onFinish = useCallback(async ({ tokenId, itemId }: ValuesType) => {
     setSubmitting(true);
     if (tokenId === NftTokenId) {
+      if (!itemId) {
+        message.error('请输入 Item ID');
+        setSubmitting(false);
+        return;
+      }
       const api = await apiPromise;
       const collectionId = (await api.query.uniques.tokenId2CollectionId(NftTokenId)).toJSON();
       const item = (await api.query.uniques.asset(collectionId, itemId)).toJSON();
@@ -51,7 +61,7 @@ export default function ClaimForm({ publicKey }: ClaimFormProps) {
         return;
       }
     }
-    const result = await axios.post('http://35.158.224.2:7788/get_token', {
+    const { data } = await axios.post<ClaimResponse>('http://35.158.224.2:7788/get_token', null, {
       params: {
         publicKey,
         tokenId,
@@ -59,9 +69,12 @@ export default function ClaimForm({ publicKey }: ClaimFormProps) {
         itemId,
       },
     });
-    console.log(result);
+    if (data.code === 0) {
+      message.success('领取测试币成功');
+    } else {
+      message.error(data.message, 10);
+    }
     setSubmitting(false);
-    message.success('领取测试币成功');
   }, [publicKey]);
 
   const [form] = useForm<ValuesType>();
@@ -71,7 +84,7 @@ export default function ClaimForm({ publicKey }: ClaimFormProps) {
     <Form
       form={form}
       onFinish={onFinish}
-      labelCol={{ offset: 4 }}
+      labelCol={{ offset: 4, span: 4 }}
       wrapperCol={{ span: 8 }}
       initialValues={defaultValues}
     >
@@ -81,7 +94,7 @@ export default function ClaimForm({ publicKey }: ClaimFormProps) {
       <Item name="itemId" label="Item ID">
         <Input disabled={tokenId === FtTokenId} />
       </Item>
-      <Item wrapperCol={{ offset: 4 }}>
+      <Item wrapperCol={{ offset: 8 }}>
         <Button loading={submitting} htmlType="submit" type="primary">{submitting ? 'Processing' : 'Submit'}</Button>
       </Item>
     </Form>
