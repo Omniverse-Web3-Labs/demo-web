@@ -35,12 +35,10 @@ import {
   ftAbi,
   nftAbi,
 } from '@/constants/abi';
-import {
-  ApiPromise,
-  HttpProvider,
-} from '@polkadot/api';
+import { apiPromise } from '@/utils/polkadot-api';
 import { utils } from 'ethers';
 import Account from './components/account';
+import ClaimForm from './components/claim-form';
 import s from './index.module.less';
 
 interface FTRecordType {
@@ -61,8 +59,6 @@ interface NFTLinkRecordType {
   openSeaLink: string
   nftScanLink: string
 }
-
-const httpProvider = new HttpProvider('http://35.158.224.2:9911');
 
 const ftColumns: TableColumnsType<FTRecordType> = [{
   title: 'Chain',
@@ -201,7 +197,7 @@ export default function Layout() {
   const [nftIds, setNftIds] = useState<number[]>([]);
   useEffect(() => {
     const fetchPolkadotTransactionCount = async () => {
-      const api = await ApiPromise.create({ provider: httpProvider, noInitWarn: true });
+      const api = await apiPromise;
       if (publicKey) {
         api.query.omniverseProtocol.transactionCount(
           publicKey,
@@ -233,8 +229,6 @@ export default function Layout() {
     };
     fetchPolkadotTransactionCount();
   }, [publicKey]);
-
-  console.log(nftIds);
 
   const ftDataSource = flow(
     map<Chain, FTRecordType>(({ id, name }) => ({
@@ -273,6 +267,13 @@ export default function Layout() {
   return (
     <div className={s.Index}>
       <Account publicKey={publicKey} address={address} />
+
+      {publicKey && (
+        <>
+          <h2 className={s.Title}>领取测试币</h2>
+          <ClaimForm publicKey={publicKey} />
+        </>
+      )}
 
       <h2 className={s.Title}>Omniverse Fungible Token</h2>
       <Table<FTRecordType>

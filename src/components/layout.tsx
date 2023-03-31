@@ -15,7 +15,11 @@ import {
   useDisconnect,
 } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
-import { WalletOutlined } from '@ant-design/icons';
+import {
+  ApiOutlined,
+  DisconnectOutlined,
+  WalletOutlined,
+} from '@ant-design/icons';
 import { ellipsis } from '@/utils/formatter';
 import 'antd/dist/reset.css';
 import './global.less';
@@ -34,6 +38,7 @@ export default function Layout() {
   const toggleConnection = useCallback(() => {
     if (isConnected) {
       disconnect();
+      window.location.reload();
     } else {
       connect();
     }
@@ -52,8 +57,9 @@ export default function Layout() {
               onClick={toggleConnection}
               type="primary"
               size="large"
+              icon={isConnected ? <DisconnectOutlined /> : <ApiOutlined />}
             >
-              { isConnected ? 'Disconnect' : 'Connect' }
+              {isConnected ? 'Disconnect' : 'Connect'}
             </Button>
           </div>
         </div>
