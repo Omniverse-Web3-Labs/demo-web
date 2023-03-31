@@ -1,5 +1,6 @@
 import React, {
   useCallback,
+  useState,
 } from 'react';
 import {
   Button,
@@ -37,17 +38,20 @@ const defaultValues: ValuesType = {
 };
 
 export default function ClaimForm({ publicKey }: ClaimFormProps) {
+  const [submitting, setSubmitting] = useState(false);
   const onFinish = useCallback(async ({ tokenId, itemId }: ValuesType) => {
+    setSubmitting(true);
     if (tokenId === NftTokenId) {
       const api = await apiPromise;
       const collectionId = (await api.query.uniques.tokenId2CollectionId(NftTokenId)).toJSON();
       const item = (await api.query.uniques.asset(collectionId, itemId)).toJSON();
       if (item) {
         message.error('Item 不能领取，请重新输入');
+        setSubmitting(false);
         return;
       }
     }
-    const result = await axios.get('http://35.158.224.2:7788/get_token', {
+    const result = await axios.post('http://35.158.224.2:7788/get_token', {
       params: {
         publicKey,
         tokenId,
@@ -56,6 +60,7 @@ export default function ClaimForm({ publicKey }: ClaimFormProps) {
       },
     });
     console.log(result);
+    setSubmitting(false);
     message.success('领取测试币成功');
   }, [publicKey]);
 
@@ -77,7 +82,7 @@ export default function ClaimForm({ publicKey }: ClaimFormProps) {
         <Input disabled={tokenId === FtTokenId} />
       </Item>
       <Item wrapperCol={{ offset: 4 }}>
-        <Button htmlType="submit" type="primary">Submit</Button>
+        <Button loading={submitting} htmlType="submit" type="primary">{submitting ? 'Processing' : 'Submit'}</Button>
       </Item>
     </Form>
   );
