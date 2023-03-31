@@ -52,6 +52,14 @@ export default function Layout() {
             Omniverse Lab
           </h1>
           <div className={s.Operations}>
+            <a
+              className={s.Link}
+              href="https://github.com/Omniverse-Web3-Labs/Omniverse-DLT-Introduction/blob/main/docs/Deployment.md"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Deploy Own Omnivers
+            </a>
             {address && <div className={s.Address}><WalletOutlined /> {ellipsis({ endLength: 12 })(address)}</div>}
             <Button
               onClick={toggleConnection}
