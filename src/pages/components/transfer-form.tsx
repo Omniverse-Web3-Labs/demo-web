@@ -127,10 +127,10 @@ export default function TransferForm({ publicKey, address }: TransferFormProps) 
       <Item name="chainId" label="Chain">
         <Select options={chainIdOptions} />
       </Item>
-      <Item name="to" label="To">
+      <Item name="to" label="To" rules={[{ required: true }]}>
         <Input />
       </Item>
-      <Item name="amount" label="Amount">
+      <Item name="amount" label="Amount" rules={[{ required: true }]}>
         <Input />
       </Item>
       <Item wrapperCol={{ offset: 8 }}>
