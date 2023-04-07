@@ -80,6 +80,3 @@ export const chainInfoMap: Record<string, ChainInfo> = {
     omniverseChainId: 6,
   },
 };
-
-export const FtTokenId = 'SKYWALKER';
-export const NftTokenId = 'SKYWALKERNFT';

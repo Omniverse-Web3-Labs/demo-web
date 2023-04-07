@@ -10,7 +10,11 @@ import {
   Radio,
 } from 'antd';
 import axios from 'axios';
-import { NftTokenId, FtTokenId } from '@/constants/chains';
+import {
+  NftTokenId,
+  FtTokenId,
+  tokenIdOptions,
+} from '@/constants/token-id';
 import { apiPromise } from '@/utils/polkadot-api';
 
 export interface ClaimFormProps {
@@ -19,14 +23,6 @@ export interface ClaimFormProps {
 
 const { Item, useForm, useWatch } = Form;
 const { Group } = Radio;
-
-const tokenIdOptions = [{
-  label: FtTokenId,
-  value: FtTokenId,
-}, {
-  label: NftTokenId,
-  value: NftTokenId,
-}];
 
 interface ValuesType {
   tokenId: string

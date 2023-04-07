@@ -7,6 +7,7 @@ import {
   Form,
   Input,
   Select,
+  Radio,
 } from 'antd';
 import {
   bscTestnet,
@@ -27,13 +28,18 @@ import {
   prepareWriteContract,
 } from 'wagmi/actions';
 import { personalSign } from '@/utils/crypto';
+import {
+  FtTokenId,
+  tokenIdOptions,
+} from '@/constants/token-id';
 
 export interface TransferFormProps {
   publicKey: `0x${string}`
   address: `0x${string}`
 }
 
-const { Item, useForm } = Form;
+const { Item, useForm, useWatch } = Form;
+const { Group } = Radio;
 
 const chainIdOptions = chains.map(({ id, name }) => ({
   value: id.toString(),
@@ -41,12 +47,14 @@ const chainIdOptions = chains.map(({ id, name }) => ({
 }));
 
 interface ValuesType {
+  tokenId: string
   chainId: string
   amount?: string
   to?: `0x${string}`
 }
 
 const defaultValues: ValuesType = {
+  tokenId: FtTokenId,
   chainId: bscTestnet.id.toString(),
 };
 
@@ -72,13 +80,16 @@ const getHashData = (
 export default function TransferForm({ publicKey, address }: TransferFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [form] = useForm<ValuesType>();
+  const tokenId = useWatch('tokenId', form);
   const onFinish = useCallback(async ({ chainId, amount, to }: ValuesType) => {
     if (!publicKey) {
       return;
     }
     setSubmitting(true);
+    const { ftAddress, nftAddress, omniverseChainId } = chainInfoMap[chainId];
+    const contractAddress = tokenId === FtTokenId ? ftAddress : nftAddress;
     const nonce = await readContract({
-      address: chainInfoMap[chainId].ftAddress,
+      address: contractAddress,
       functionName: 'getTransactionCount',
       chainId: Number(chainId),
       abi: ftAbi,
@@ -88,9 +99,9 @@ export default function TransferForm({ publicKey, address }: TransferFormProps) 
     const amountBigNumber = utils.parseUnits(amount || '0', 12);
     const txData = {
       nonce,
-      chainId: chainInfoMap[chainId].omniverseChainId,
+      chainId: omniverseChainId,
       from: publicKey!,
-      initiateSC: chainInfoMap[chainId].ftAddress,
+      initiateSC: contractAddress,
       payload: utils.defaultAbiCoder.encode(
         ['uint8', 'bytes', 'uint256'],
         [Operator.Transfer, to, amountBigNumber],
@@ -102,7 +113,7 @@ export default function TransferForm({ publicKey, address }: TransferFormProps) 
     const signature = await personalSign(message, address);
     console.log('signature', signature);
     const config = await prepareWriteContract({
-      address: chainInfoMap[chainId].ftAddress,
+      address: contractAddress,
       abi: ftAbi,
       functionName: 'sendOmniverseTransaction',
       chainId: Number(chainId),
@@ -114,7 +125,7 @@ export default function TransferForm({ publicKey, address }: TransferFormProps) 
     const result = await writeContract(config);
     console.log(result);
     setSubmitting(false);
-  }, [publicKey, address]);
+  }, [publicKey, address, tokenId]);
 
   return (
     <Form
@@ -124,13 +135,16 @@ export default function TransferForm({ publicKey, address }: TransferFormProps) 
       wrapperCol={{ span: 8 }}
       initialValues={defaultValues}
     >
+      <Item name="tokenId" label="Token ID">
+        <Group options={tokenIdOptions} />
+      </Item>
       <Item name="chainId" label="Chain">
         <Select options={chainIdOptions} />
       </Item>
       <Item name="to" label="To" rules={[{ required: true }]}>
         <Input />
       </Item>
-      <Item name="amount" label="Amount" rules={[{ required: true }]}>
+      <Item name="amount" label={tokenId === FtTokenId ? 'Amount' : 'NFT ID'} rules={[{ required: true }]}>
         <Input />
       </Item>
       <Item wrapperCol={{ offset: 8 }}>

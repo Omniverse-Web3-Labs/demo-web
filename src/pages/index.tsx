@@ -9,11 +9,13 @@ import {
 import {
   mumbai,
   platON,
-  FtTokenId,
-  NftTokenId,
   chains,
   chainInfoMap,
 } from '@/constants/chains';
+import {
+  NftTokenId,
+  FtTokenId,
+} from '@/constants/token-id';
 import {
   map,
 } from 'lodash/fp';
