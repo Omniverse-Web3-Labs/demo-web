@@ -3,7 +3,11 @@ import {
   blake2AsU8a,
 } from '@polkadot/util-crypto';
 
-export const a = 1;
+// eslint-disable-next-line arrow-body-style
+export const personalSign = async (message: string, address: `0x${string}`): Promise<`0x${string}`> => {
+  // @ts-ignore
+  return window.ethereum.request({ method: 'personal_sign', params: [message, address] });
+};
 export const getPolkadotAddressFromPubKey = (publicKey: string) => {
   let compressed = publicKey;
 

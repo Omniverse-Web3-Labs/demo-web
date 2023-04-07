@@ -8,6 +8,7 @@ import {
   eq,
   prop,
 } from 'lodash/fp';
+import { personalSign } from '@/utils/crypto';
 import type { RootState } from './index';
 
 export interface Account {
@@ -32,8 +33,7 @@ export const readPublicKey = createAsyncThunk<`0x${string}`, {
       }
     }
     const message = 'Get public key';
-    // @ts-ignore
-    const signature: string = await window.ethereum.request({ method: 'personal_sign', params: [message, address] });
+    const signature = await personalSign(message, address);
     const publicKey = extractPublicKey({
       data: message,
       signature,

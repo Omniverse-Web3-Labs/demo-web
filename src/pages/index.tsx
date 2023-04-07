@@ -9,11 +9,10 @@ import {
 import {
   mumbai,
   platON,
-  FtTokenAddressMap,
   FtTokenId,
   NftTokenId,
-  NftTokenAddressMap,
   chains,
+  chainInfoMap,
 } from '@/constants/chains';
 import {
   map,
@@ -104,7 +103,7 @@ export default function Layout() {
   const ftTransactionCountReads = useContractReads({
     enabled: !!publicKey,
     contracts: chains.map(({ id }) => ({
-      address: FtTokenAddressMap[id],
+      address: chainInfoMap[id].ftAddress,
       functionName: 'getTransactionCount',
       chainId: id,
       abi: ftAbi,
@@ -114,7 +113,7 @@ export default function Layout() {
   const nftTransactionCountReads = useContractReads({
     enabled: !!publicKey,
     contracts: chains.map(({ id }) => ({
-      address: NftTokenAddressMap[id],
+      address: chainInfoMap[id].nftAddress,
       functionName: 'getTransactionCount',
       chainId: id,
       abi: nftAbi,
@@ -126,7 +125,7 @@ export default function Layout() {
     address,
     enabled: !!address,
     chainId: id,
-    token: FtTokenAddressMap[id],
+    token: chainInfoMap[id].ftAddress,
   }));
   const ftONonceMap: Record<string, string> = {};
   if (ftTransactionCountReads.isSuccess) {
@@ -209,8 +208,8 @@ export default function Layout() {
 
   const nftLinkDataSource = map<number, NFTLinkRecordType>((id) => ({
     id,
-    openSeaLink: `https://testnets.opensea.io/assets/mumbai/${NftTokenAddressMap[mumbai.id]}/${id}`,
-    nftScanLink: `https://platon.nftscan.com/${NftTokenAddressMap[platON.id]}/${id}`,
+    openSeaLink: `https://testnets.opensea.io/assets/mumbai/${chainInfoMap[mumbai.id].nftAddress}/${id}`,
+    nftScanLink: `https://platon.nftscan.com/${chainInfoMap[platON.id].nftAddress}/${id}`,
   }))(nftIds);
 
   return (

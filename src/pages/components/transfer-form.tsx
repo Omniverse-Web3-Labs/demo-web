@@ -10,8 +10,8 @@ import {
 } from 'antd';
 import {
   bscTestnet,
+  chainInfoMap,
   chains,
-  FtTokenAddressMap,
 } from '@/constants/chains';
 import {
   utils,
@@ -27,6 +27,7 @@ import {
   writeContract,
   prepareWriteContract,
 } from 'wagmi/actions';
+import { personalSign } from '@/utils/crypto';
 
 export interface TransferFormProps {
   publicKey: `0x${string}`
@@ -85,7 +86,7 @@ export default function TransferForm({ publicKey, address }: TransferFormProps) 
     }
     setSubmitting(true);
     const nonce = await readContract({
-      address: FtTokenAddressMap[chainId],
+      address: chainInfoMap[chainId].ftAddress,
       functionName: 'getTransactionCount',
       chainId: Number(chainId),
       abi: ftAbi,
@@ -94,27 +95,21 @@ export default function TransferForm({ publicKey, address }: TransferFormProps) 
 
     const txData = {
       nonce,
-      chainId: Number(chainId),
+      chainId: chainInfoMap[chainId].omniverseChainId,
       from: publicKey!,
-      initiateSC: FtTokenAddressMap[chainId],
+      initiateSC: chainInfoMap[chainId].ftAddress,
       payload: utils.defaultAbiCoder.encode(
         ['uint8', 'bytes', 'uint256'],
         [Operator.Transfer, to, amount],
       ) as `0x${string}`,
     };
     const message = getHashData(txData, Operator.Transfer, to!, Number(amount));
-    // @ts-ignore
-    const signature: `0x${string}` = await window.ethereum.request({
-      // @ts-ignore
-      method: 'personal_sign',
-      // @ts-ignore
-      params: [message, address],
-    });
+    const signature = await personalSign(message, address);
     console.log('txData', txData);
     console.log('message', message);
     console.log('signature', signature);
     const config = await prepareWriteContract({
-      address: FtTokenAddressMap[chainId],
+      address: chainInfoMap[chainId].ftAddress,
       abi: ftAbi,
       functionName: 'sendOmniverseTransaction',
       chainId: Number(chainId),

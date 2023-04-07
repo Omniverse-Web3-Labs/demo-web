@@ -16,7 +16,7 @@ import {
   flow,
   concat,
 } from 'lodash/fp';
-import { getPolkadotAddressFromPubKey } from '@/utils/public-key';
+import { getPolkadotAddressFromPubKey } from '@/utils/crypto';
 import s from '../index.module.less';
 
 interface AccountRecordType {
