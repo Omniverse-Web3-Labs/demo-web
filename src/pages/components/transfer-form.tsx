@@ -59,14 +59,14 @@ const getHashData = (
   }: { nonce: BigNumber, chainId: number, initiateSC: `0x${string}`, from: `0x${string}` },
   operator: Operator,
   to: `0x${string}`,
-  amount: number,
+  amount: BigNumber,
 ): string => Buffer.concat([
   Buffer.from(new BN(nonce.toString()).toString('hex').padStart(32, '0'), 'hex'),
   Buffer.from(new BN(chainId).toString('hex').padStart(8, '0'), 'hex'),
   Buffer.from(initiateSC.slice(2), 'hex'), Buffer.from(from.slice(2), 'hex'),
   Buffer.from(new BN(operator).toString('hex').padStart(2, '0'), 'hex'),
   Buffer.from(to.slice(2), 'hex'),
-  Buffer.from(new BN(amount).toString('hex').padStart(32, '0'), 'hex'),
+  Buffer.from(new BN(amount.toString()).toString('hex').padStart(32, '0'), 'hex'),
 ]).toString('hex');
 
 export default function TransferForm({ publicKey, address }: TransferFormProps) {
@@ -85,6 +85,7 @@ export default function TransferForm({ publicKey, address }: TransferFormProps) 
       args: [publicKey],
     });
 
+    const amountBigNumber = utils.parseUnits(amount || '0', 12);
     const txData = {
       nonce,
       chainId: chainInfoMap[chainId].omniverseChainId,
@@ -92,11 +93,11 @@ export default function TransferForm({ publicKey, address }: TransferFormProps) 
       initiateSC: chainInfoMap[chainId].ftAddress,
       payload: utils.defaultAbiCoder.encode(
         ['uint8', 'bytes', 'uint256'],
-        [Operator.Transfer, to, amount],
+        [Operator.Transfer, to, amountBigNumber],
       ) as `0x${string}`,
     };
     console.log('txData', txData);
-    const message = getHashData(txData, Operator.Transfer, to!, Number(amount));
+    const message = getHashData(txData, Operator.Transfer, to!, amountBigNumber);
     console.log('message', message);
     const signature = await personalSign(message, address);
     console.log('signature', signature);

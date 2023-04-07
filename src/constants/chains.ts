@@ -81,5 +81,5 @@ export const chainInfoMap: Record<string, ChainInfo> = {
   },
 };
 
-export const FtTokenId = 'MFT';
-export const NftTokenId = 'MNFT';
+export const FtTokenId = 'SKYWALKER';
+export const NftTokenId = 'SKYWALKERNFT';
