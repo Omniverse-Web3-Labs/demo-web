@@ -7,10 +7,7 @@ import {
   TableColumnsType,
 } from 'antd';
 import {
-  Chain,
   goerli,
-  moonbaseAlpha,
-  bscTestnet,
 } from 'wagmi/chains';
 import {
   platON,
@@ -18,11 +15,10 @@ import {
   FtTokenId,
   NftTokenId,
   NftTokenAddressMap,
+  chains,
 } from '@/constants/chains';
 import {
   map,
-  flow,
-  concat,
 } from 'lodash/fp';
 import { useAppSelector } from '@/redux';
 import { selectEntities } from '@/redux/account';
@@ -106,91 +102,51 @@ export default function Layout() {
     publicKey: selectEntities(state).publicKey,
   }));
   const { address } = useAccount();
-  const { data, isSuccess } = useContractReads({
+  const ftTransactionCountReads = useContractReads({
     enabled: !!publicKey,
-    contracts: [{
-      address: FtTokenAddressMap[platON.id],
+    contracts: chains.map(({ id }) => ({
+      address: FtTokenAddressMap[id],
       functionName: 'getTransactionCount',
-      chainId: platON.id,
+      chainId: id,
       abi: ftAbi,
       args: [publicKey!],
-    }, {
-      address: FtTokenAddressMap[moonbaseAlpha.id],
-      functionName: 'getTransactionCount',
-      chainId: moonbaseAlpha.id,
-      abi: ftAbi,
-      args: [publicKey!],
-    }, {
-      address: FtTokenAddressMap[bscTestnet.id],
-      functionName: 'getTransactionCount',
-      chainId: bscTestnet.id,
-      abi: ftAbi,
-      args: [publicKey!],
-    }, {
-      address: NftTokenAddressMap[platON.id],
-      functionName: 'getTransactionCount',
-      chainId: platON.id,
-      abi: nftAbi,
-      args: [publicKey!],
-    }, {
-      address: NftTokenAddressMap[moonbaseAlpha.id],
-      functionName: 'getTransactionCount',
-      chainId: moonbaseAlpha.id,
-      abi: nftAbi,
-      args: [publicKey!],
-    }, {
-      address: NftTokenAddressMap[bscTestnet.id],
-      functionName: 'getTransactionCount',
-      chainId: bscTestnet.id,
-      abi: nftAbi,
-      args: [publicKey!],
-    }, {
-      address: NftTokenAddressMap[goerli.id],
-      functionName: 'getTransactionCount',
-      chainId: goerli.id,
-      abi: nftAbi,
-      args: [publicKey!],
-    }],
+    })),
   });
-  const bscTestnetBalance = useBalance({
+  const nftTransactionCountReads = useContractReads({
+    enabled: !!publicKey,
+    contracts: chains.map(({ id }) => ({
+      address: NftTokenAddressMap[id],
+      functionName: 'getTransactionCount',
+      chainId: id,
+      abi: nftAbi,
+      args: [publicKey!],
+    })),
+  });
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const ftBalances = chains.map(({ id }) => useBalance({
     address,
     enabled: !!address,
-    chainId: bscTestnet.id,
-    token: FtTokenAddressMap[bscTestnet.id],
-  });
-  const moonbaseAlphaBalance = useBalance({
-    address,
-    enabled: !!address,
-    chainId: moonbaseAlpha.id,
-    token: FtTokenAddressMap[moonbaseAlpha.id],
-  });
-  const platONBalance = useBalance({
-    address,
-    enabled: !!address,
-    chainId: platON.id,
-    token: FtTokenAddressMap[platON.id],
-  });
+    chainId: id,
+    token: FtTokenAddressMap[id],
+  }));
   const ftONonceMap: Record<string, string> = {};
+  if (ftTransactionCountReads.isSuccess) {
+    chains.forEach(({ id }, index) => {
+      ftONonceMap[id] = ftTransactionCountReads.data![index]!.toString();
+    });
+  }
   const nftONonceMap: Record<string, string> = {};
-  if (isSuccess && data) {
-    ftONonceMap[platON.id] = data[0]?.toString();
-    ftONonceMap[moonbaseAlpha.id] = data[1]?.toString();
-    ftONonceMap[bscTestnet.id] = data[2]?.toString();
-    nftONonceMap[platON.id] = data[3]?.toString();
-    nftONonceMap[moonbaseAlpha.id] = data[4]?.toString();
-    nftONonceMap[bscTestnet.id] = data[5]?.toString();
-    nftONonceMap[goerli.id] = data[6]?.toString();
+  if (nftTransactionCountReads.isSuccess) {
+    chains.forEach(({ id }, index) => {
+      nftONonceMap[id] = nftTransactionCountReads.data![index]!.toString();
+    });
   }
   const oBalanceMap: Record<string, string> = {};
-  if (bscTestnetBalance.isSuccess && bscTestnetBalance.data) {
-    oBalanceMap[bscTestnet.id] = bscTestnetBalance.data.formatted;
-  }
-  if (moonbaseAlphaBalance.isSuccess && moonbaseAlphaBalance.data) {
-    oBalanceMap[moonbaseAlpha.id] = moonbaseAlphaBalance.data.formatted;
-  }
-  if (platONBalance.isSuccess && platONBalance.data) {
-    oBalanceMap[platON.id] = platONBalance.data.formatted;
-  }
+  chains.forEach(({ id }, index) => {
+    if (ftBalances[index].isSuccess) {
+      oBalanceMap[id] = ftBalances[index]!.data!.formatted;
+    }
+  });
   const [ftTransactionCount, setFtTransactionCount] = useState<string | undefined>();
   const [nftTransactionCount, setNftTransactionCount] = useState<string | undefined>();
   const [polkadotBalance, setPolkadotBalance] = useState<string | undefined>();
@@ -230,33 +186,27 @@ export default function Layout() {
     fetchPolkadotTransactionCount();
   }, [publicKey]);
 
-  const ftDataSource = flow(
-    map<Chain, FTRecordType>(({ id, name }) => ({
-      chainName: name,
-      tokenId: FtTokenId,
-      oNonce: ftONonceMap[id],
-      oBalance: oBalanceMap[id],
-    })),
-    concat<FTRecordType>({
-      chainName: 'Substrate',
-      tokenId: FtTokenId,
-      oNonce: ftTransactionCount,
-      oBalance: polkadotBalance,
-    }),
-  )([platON, moonbaseAlpha, bscTestnet]);
+  const ftDataSource: FTRecordType[] = [...chains.map(({ name }, index) => ({
+    chainName: name,
+    tokenId: FtTokenId,
+    oNonce: ftTransactionCountReads.data?.[index]!.toString(),
+    oBalance: ftBalances[index].data?.formatted,
+  })), {
+    chainName: 'Substrate',
+    tokenId: FtTokenId,
+    oNonce: ftTransactionCount,
+    oBalance: polkadotBalance,
+  }];
 
-  const nftDataSource = flow(
-    map<Chain, NFTRecordType>(({ id, name }) => ({
-      chainName: name,
-      tokenId: NftTokenId,
-      noNonce: nftONonceMap[id],
-    })),
-    concat<NFTRecordType>({
-      chainName: 'Substrate',
-      tokenId: NftTokenId,
-      noNonce: nftTransactionCount,
-    }),
-  )([platON, moonbaseAlpha, bscTestnet, goerli]);
+  const nftDataSource: NFTRecordType[] = [...chains.map(({ name }, index) => ({
+    chainName: name,
+    tokenId: NftTokenId,
+    noNonce: nftTransactionCountReads.data?.[index]!.toString(),
+  })), {
+    chainName: 'Substrate',
+    tokenId: NftTokenId,
+    noNonce: nftTransactionCount,
+  }];
 
   const nftLinkDataSource = map<number, NFTLinkRecordType>((id) => ({
     id,

@@ -16,6 +16,50 @@ export const ftAbi = [{
   ],
   stateMutability: 'view',
   type: 'function',
+}, {
+  inputs: [
+    {
+      components: [
+        {
+          internalType: 'uint128',
+          name: 'nonce',
+          type: 'uint128',
+        },
+        {
+          internalType: 'uint32',
+          name: 'chainId',
+          type: 'uint32',
+        },
+        {
+          internalType: 'bytes',
+          name: 'initiateSC',
+          type: 'bytes',
+        },
+        {
+          internalType: 'bytes',
+          name: 'from',
+          type: 'bytes',
+        },
+        {
+          internalType: 'bytes',
+          name: 'payload',
+          type: 'bytes',
+        },
+        {
+          internalType: 'bytes',
+          name: 'signature',
+          type: 'bytes',
+        },
+      ],
+      internalType: 'struct ERC6358TransactionData',
+      name: '_data',
+      type: 'tuple',
+    },
+  ],
+  name: 'sendOmniverseTransaction',
+  outputs: [],
+  stateMutability: 'nonpayable',
+  type: 'function',
 }] as const;
 
 export const nftAbi = [{
@@ -35,5 +79,49 @@ export const nftAbi = [{
     },
   ],
   stateMutability: 'view',
+  type: 'function',
+}, {
+  inputs: [
+    {
+      components: [
+        {
+          internalType: 'uint128',
+          name: 'nonce',
+          type: 'uint128',
+        },
+        {
+          internalType: 'uint32',
+          name: 'chainId',
+          type: 'uint32',
+        },
+        {
+          internalType: 'bytes',
+          name: 'initiateSC',
+          type: 'bytes',
+        },
+        {
+          internalType: 'bytes',
+          name: 'from',
+          type: 'bytes',
+        },
+        {
+          internalType: 'bytes',
+          name: 'payload',
+          type: 'bytes',
+        },
+        {
+          internalType: 'bytes',
+          name: 'signature',
+          type: 'bytes',
+        },
+      ],
+      internalType: 'struct ERC6358TransactionData',
+      name: '_data',
+      type: 'tuple',
+    },
+  ],
+  name: 'sendOmniverseTransaction',
+  outputs: [],
+  stateMutability: 'nonpayable',
   type: 'function',
 }] as const;

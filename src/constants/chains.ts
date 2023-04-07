@@ -1,11 +1,10 @@
 import {
   bscTestnet,
-  moonbaseAlpha,
-  goerli,
+  sepolia,
   Chain,
 } from 'wagmi/chains';
 
-export { bscTestnet, moonbaseAlpha } from 'wagmi/chains';
+export { bscTestnet, sepolia } from 'wagmi/chains';
 export type { Chain } from 'wagmi/chains';
 
 export const platON: Chain = {
@@ -29,19 +28,39 @@ export const platON: Chain = {
   },
 };
 
-export const chains = [bscTestnet, moonbaseAlpha, platON, goerli];
+export const mumbai: Chain = {
+  id: 80001,
+  name: 'Mumbai',
+  network: 'Mumbai',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'MATIC',
+    symbol: 'MATIC',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc-mumbai.maticvigil.com'],
+    },
+    public: {
+      http: ['https://rpc-mumbai.maticvigil.com'],
+    },
+  },
+};
+
+export const chains = [bscTestnet, platON, sepolia, mumbai];
 
 export const FtTokenAddressMap: Record<string, `0x${string}`> = {
-  [bscTestnet.id]: '0x7c52b6e88c9Cc397d82506b9e4df6D7D06674934',
-  [moonbaseAlpha.id]: '0x4B89eBA967d8333C6664F42A18EE5fb42e22a0dA',
-  [platON.id]: '0x1181E9bBb48a5448c81CF1A2532A3D4257C69E22',
+  [bscTestnet.id]: '0x12B22989407C8E6C69df5477AbD7b569b024Aba0',
+  [platON.id]: '0x0791B79Ba0DC124dd357633Bf298719aa12f7D59',
+  [sepolia.id]: '0x64aEcC149f292eCbCf8Dd93B320d5a9780aba191',
+  [mumbai.id]: '0x1181e9bbb48a5448c81cf1a2532a3d4257c69e22',
 };
 
 export const NftTokenAddressMap: Record<string, `0x${string}`> = {
-  [bscTestnet.id]: '0xBF2F3eae1e507e6A6450C7E8BCa40b273962AA6B',
-  [moonbaseAlpha.id]: '0xe07804c5e32423A95a0B1fA56845D7fC46230847',
-  [platON.id]: '0x68170f4Dc61c02771051CcD0FF26295D6330f47d',
-  [goerli.id]: '0xcbC3b5A344eE3d55a7527F1a5e6dB4CE84DdB380',
+  [bscTestnet.id]: '0x1AF65Fa4fd838074980CadB398969C9fA10c9Ce7',
+  [platON.id]: '0x13A689B55FF8Bf86a8dEAC357553eabDd93f78fb',
+  [sepolia.id]: '0x081Ba0C5C458F1D350F95dc4e6Dc172e69F8Fff7',
+  [mumbai.id]: '0x4F77711365BB96969D763Fc8CB6cB40964aC94Ce',
 };
 
 export const FtTokenId = 'MFT';

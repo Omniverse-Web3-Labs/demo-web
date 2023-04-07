@@ -7,12 +7,9 @@ import {
 } from 'antd';
 import {
   Chain,
-  goerli,
-  moonbaseAlpha,
-  bscTestnet,
 } from 'wagmi/chains';
 import {
-  platON,
+  chains,
 } from '@/constants/chains';
 import {
   map,
@@ -58,7 +55,7 @@ export default function Account({ publicKey, address }: AccountProps) {
       oAddress: publicKey,
       address: publicKey ? getPolkadotAddressFromPubKey(publicKey) : '',
     }),
-  )([bscTestnet, goerli, moonbaseAlpha, platON]), [address, publicKey]);
+  )(chains), [address, publicKey]);
 
   return (
     <div>
