@@ -163,7 +163,7 @@ export default function Layout() {
 
         api.query.omniverseProtocol.transactionCount(
           publicKey,
-          'assets',
+          'uniques',
           NftTokenId,
         ).then((count) => {
           setNftTransactionCount(count.toString());
