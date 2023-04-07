@@ -21,7 +21,6 @@ import { ftAbi } from '@/constants/abi';
 import { Operator } from '@/constants/operator';
 import { Buffer } from 'buffer/';
 import BN from 'bn.js';
-import keccak256 from 'keccak256';
 import {
   readContract,
   writeContract,
@@ -61,21 +60,14 @@ const getHashData = (
   operator: Operator,
   to: `0x${string}`,
   amount: number,
-): string => {
-  let data = Buffer.concat([
-    Buffer.from(new BN(operator).toString('hex').padStart(2, '0'), 'hex'),
-    Buffer.from(to.slice(2), 'hex'),
-    Buffer.from(new BN(amount).toString('hex').padStart(32, '0'), 'hex'),
-  ]);
-  data = Buffer.concat([
-    Buffer.from(new BN(nonce.toString()).toString('hex').padStart(32, '0'), 'hex'),
-    Buffer.from(new BN(chainId).toString('hex').padStart(8, '0'), 'hex'),
-    Buffer.from(initiateSC.slice(2), 'hex'), Buffer.from(from.slice(2), 'hex'),
-    data,
-  ]);
-  // @ts-ignore
-  return keccak256(data).toString('hex');
-};
+): string => Buffer.concat([
+  Buffer.from(new BN(nonce.toString()).toString('hex').padStart(32, '0'), 'hex'),
+  Buffer.from(new BN(chainId).toString('hex').padStart(8, '0'), 'hex'),
+  Buffer.from(initiateSC.slice(2), 'hex'), Buffer.from(from.slice(2), 'hex'),
+  Buffer.from(new BN(operator).toString('hex').padStart(2, '0'), 'hex'),
+  Buffer.from(to.slice(2), 'hex'),
+  Buffer.from(new BN(amount).toString('hex').padStart(32, '0'), 'hex'),
+]).toString('hex');
 
 export default function TransferForm({ publicKey, address }: TransferFormProps) {
   const [submitting, setSubmitting] = useState(false);
@@ -103,10 +95,10 @@ export default function TransferForm({ publicKey, address }: TransferFormProps) 
         [Operator.Transfer, to, amount],
       ) as `0x${string}`,
     };
-    const message = getHashData(txData, Operator.Transfer, to!, Number(amount));
-    const signature = await personalSign(message, address);
     console.log('txData', txData);
+    const message = getHashData(txData, Operator.Transfer, to!, Number(amount));
     console.log('message', message);
+    const signature = await personalSign(message, address);
     console.log('signature', signature);
     const config = await prepareWriteContract({
       address: chainInfoMap[chainId].ftAddress,
