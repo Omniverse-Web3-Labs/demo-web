@@ -67,7 +67,7 @@ const getHashData = (
   }: { nonce: BigNumber, chainId: number, initiateSC: `0x${string}`, from: `0x${string}` },
   operator: Operator,
   to: `0x${string}`,
-  amount: BigNumber,
+  amount: BigNumber | string,
 ): string => Buffer.concat([
   Buffer.from(new BN(nonce.toString()).toString('hex').padStart(32, '0'), 'hex'),
   Buffer.from(new BN(chainId).toString('hex').padStart(8, '0'), 'hex'),
@@ -88,6 +88,7 @@ export default function TransferForm({ publicKey, address }: TransferFormProps) 
     setSubmitting(true);
     const { ftAddress, nftAddress, omniverseChainId } = chainInfoMap[chainId];
     const contractAddress = tokenId === FtTokenId ? ftAddress : nftAddress;
+    const param = tokenId === FtTokenId ? utils.parseUnits(amount || '0', 12) : amount!;
     const nonce = await readContract({
       address: contractAddress,
       functionName: 'getTransactionCount',
@@ -96,7 +97,6 @@ export default function TransferForm({ publicKey, address }: TransferFormProps) 
       args: [publicKey],
     });
 
-    const amountBigNumber = utils.parseUnits(amount || '0', 12);
     const txData = {
       nonce,
       chainId: omniverseChainId,
@@ -104,11 +104,11 @@ export default function TransferForm({ publicKey, address }: TransferFormProps) 
       initiateSC: contractAddress,
       payload: utils.defaultAbiCoder.encode(
         ['uint8', 'bytes', 'uint256'],
-        [Operator.Transfer, to, amountBigNumber],
+        [Operator.Transfer, to, param],
       ) as `0x${string}`,
     };
     console.log('txData', txData);
-    const message = getHashData(txData, Operator.Transfer, to!, amountBigNumber);
+    const message = getHashData(txData, Operator.Transfer, to!, param);
     console.log('message', message);
     const signature = await personalSign(message, address);
     console.log('signature', signature);
