@@ -7,9 +7,7 @@ import {
   TableColumnsType,
 } from 'antd';
 import {
-  goerli,
-} from 'wagmi/chains';
-import {
+  mumbai,
   platON,
   FtTokenAddressMap,
   FtTokenId,
@@ -35,6 +33,7 @@ import { apiPromise } from '@/utils/polkadot-api';
 import { utils } from 'ethers';
 import Account from './components/account';
 import ClaimForm from './components/claim-form';
+import TransferForm from './components/transfer-form';
 import s from './index.module.less';
 
 interface FTRecordType {
@@ -210,7 +209,7 @@ export default function Layout() {
 
   const nftLinkDataSource = map<number, NFTLinkRecordType>((id) => ({
     id,
-    openSeaLink: `https://testnets.opensea.io/assets/goerli/${NftTokenAddressMap[goerli.id]}/${id}`,
+    openSeaLink: `https://testnets.opensea.io/assets/mumbai/${NftTokenAddressMap[mumbai.id]}/${id}`,
     nftScanLink: `https://platon.nftscan.com/${NftTokenAddressMap[platON.id]}/${id}`,
   }))(nftIds);
 
@@ -222,6 +221,13 @@ export default function Layout() {
         <>
           <h2 className={s.Title}>领取测试币</h2>
           <ClaimForm publicKey={publicKey} />
+        </>
+      )}
+
+      {publicKey && address && (
+        <>
+          <h2 className={s.Title}>交易</h2>
+          <TransferForm publicKey={publicKey} address={address} />
         </>
       )}
 

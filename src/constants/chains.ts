@@ -63,5 +63,12 @@ export const NftTokenAddressMap: Record<string, `0x${string}`> = {
   [mumbai.id]: '0x4F77711365BB96969D763Fc8CB6cB40964aC94Ce',
 };
 
+export const skywalkerFungibleAddressMap: Record<string, `0x${string}`> = {
+  [bscTestnet.id]: '0x12B22989407C8E6C69df5477AbD7b569b024Aba0',
+  [platON.id]: '0x0791B79Ba0DC124dd357633Bf298719aa12f7D59',
+  [sepolia.id]: '0x64aEcC149f292eCbCf8Dd93B320d5a9780aba191',
+  [mumbai.id]: '0x1181e9bbb48a5448c81cf1a2532a3d4257c69e22',
+};
+
 export const FtTokenId = 'MFT';
 export const NftTokenId = 'MNFT';
