@@ -135,7 +135,7 @@ export default function TransferForm({ publicKey, address }: TransferFormProps) 
       wrapperCol={{ span: 8 }}
       initialValues={defaultValues}
     >
-      <Item name="tokenId" label="Token ID">
+      <Item name="tokenId" label="Asset ID">
         <Group options={tokenIdOptions} />
       </Item>
       <Item name="chainId" label="Chain">

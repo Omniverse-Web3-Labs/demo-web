@@ -60,7 +60,7 @@ const ftColumns: TableColumnsType<FTRecordType> = [{
   title: 'Chain',
   dataIndex: 'chainName',
 }, {
-  title: 'Token ID',
+  title: 'Asset ID',
   dataIndex: 'tokenId',
 }, {
   title: 'FT O-Nonce',
@@ -74,7 +74,7 @@ const nftColumns: TableColumnsType<NFTRecordType> = [{
   title: 'Chain',
   dataIndex: 'chainName',
 }, {
-  title: 'Token ID',
+  title: 'Asset ID',
   dataIndex: 'tokenId',
 }, {
   title: 'NO-Nonce',
@@ -220,19 +220,19 @@ export default function Layout() {
 
       {publicKey && (
         <>
-          <h2 className={s.Title}>领取测试币</h2>
+          <h2 className={s.Title}>Apply for Testing Assets</h2>
           <ClaimForm publicKey={publicKey} />
         </>
       )}
 
       {publicKey && address && (
         <>
-          <h2 className={s.Title}>交易</h2>
+          <h2 className={s.Title}>Present as a Gift</h2>
           <TransferForm publicKey={publicKey} address={address} />
         </>
       )}
 
-      <h2 className={s.Title}>Omniverse Fungible Token</h2>
+      <h2 className={s.Title}>Omniverse Fungible Asset</h2>
       <Table<FTRecordType>
         dataSource={ftDataSource}
         columns={ftColumns}
@@ -240,7 +240,7 @@ export default function Layout() {
         pagination={false}
       />
 
-      <h2 className={s.Title}>Omniverse Non-Fungible Token</h2>
+      <h2 className={s.Title}>Omniverse Non-Fungible Asset</h2>
       <Table<NFTRecordType>
         dataSource={nftDataSource}
         columns={nftColumns}
@@ -248,7 +248,7 @@ export default function Layout() {
         pagination={false}
       />
 
-      <h2 className={s.Title}>Omniverse Non-Fungible Token List</h2>
+      <h2 className={s.Title}>Omniverse Non-Fungible Asset List</h2>
       <Table<NFTLinkRecordType>
         dataSource={nftLinkDataSource}
         columns={nftLinkColumns}

@@ -84,7 +84,7 @@ export default function ClaimForm({ publicKey }: ClaimFormProps) {
       wrapperCol={{ span: 8 }}
       initialValues={defaultValues}
     >
-      <Item name="tokenId" label="Token ID">
+      <Item name="tokenId" label="Asset ID">
         <Group options={tokenIdOptions} />
       </Item>
       <Item name="itemId" label="Item ID">
