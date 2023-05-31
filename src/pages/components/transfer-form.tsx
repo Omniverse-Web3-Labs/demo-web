@@ -141,7 +141,12 @@ export default function TransferForm({ publicKey, address }: TransferFormProps) 
       <Item name="chainId" label="Chain">
         <Select options={chainIdOptions} />
       </Item>
-      <Item name="to" label="To" rules={[{ required: true }]}>
+      <Item
+        name="to"
+        label="To"
+        rules={[{ required: true }]}
+        help="Note: Ensure that the 'To' address has already Applied for Testing Assets!"
+      >
         <Input />
       </Item>
       <Item name="amount" label={tokenId === FtTokenId ? 'Amount' : 'NFT ID'} rules={[{ required: true }]}>
