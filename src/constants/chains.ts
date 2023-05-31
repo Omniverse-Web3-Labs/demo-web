@@ -1,5 +1,5 @@
 import {
-  bscTestnet,
+  // bscTestnet,
   sepolia,
   Chain,
 } from 'wagmi/chains';
@@ -50,7 +50,8 @@ export const mumbai: Chain = {
   },
 };
 
-export const chains = [bscTestnet, platON, sepolia, mumbai];
+// export const chains = [bscTestnet, platON, sepolia, mumbai];
+export const chains = [platON, sepolia, mumbai];
 
 export interface ChainInfo {
   ftAddress: `0x${string}`
@@ -59,24 +60,24 @@ export interface ChainInfo {
 }
 
 export const chainInfoMap: Record<string, ChainInfo> = {
-  [bscTestnet.id]: {
-    ftAddress: '0x12B22989407C8E6C69df5477AbD7b569b024Aba0',
-    nftAddress: '0x1AF65Fa4fd838074980CadB398969C9fA10c9Ce7',
-    omniverseChainId: 0,
-  },
+  // [bscTestnet.id]: {
+  //   ftAddress: '0x12B22989407C8E6C69df5477AbD7b569b024Aba0',
+  //   nftAddress: '0x1AF65Fa4fd838074980CadB398969C9fA10c9Ce7',
+  //   omniverseChainId: 0,
+  // },
   [platON.id]: {
-    ftAddress: '0x0791B79Ba0DC124dd357633Bf298719aa12f7D59',
-    nftAddress: '0x13A689B55FF8Bf86a8dEAC357553eabDd93f78fb',
+    ftAddress: '0x4C121e60BF0ff5094e718354eE00202B901FEF1e',
+    nftAddress: '0x6517495b90acb1062076270EDE4ed772fdE277b9',
     omniverseChainId: 4,
   },
   [sepolia.id]: {
-    ftAddress: '0x64aEcC149f292eCbCf8Dd93B320d5a9780aba191',
-    nftAddress: '0x081Ba0C5C458F1D350F95dc4e6Dc172e69F8Fff7',
+    ftAddress: '0xa1278174CF8f35B72f87C351ADC9E991470c6160',
+    nftAddress: '0xdCC3ec86A5d6C151054D89B8759F4772e703909a',
     omniverseChainId: 5,
   },
   [mumbai.id]: {
-    ftAddress: '0x1181e9bbb48a5448c81cf1a2532a3d4257c69e22',
-    nftAddress: '0x4F77711365BB96969D763Fc8CB6cB40964aC94Ce',
+    ftAddress: '0xa1278174CF8f35B72f87C351ADC9E991470c6160',
+    nftAddress: '0xc0caE974357948d046A46Ac6c286E4BDE016fC6B',
     omniverseChainId: 6,
   },
 };

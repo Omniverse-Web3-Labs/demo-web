@@ -59,7 +59,7 @@ export default function Account({ publicKey, address }: AccountProps) {
 
   return (
     <div>
-      <h2 className={s.Title}>账号信息</h2>
+      <h2 className={s.Title}>Account on Omni-Chain</h2>
       <Table<AccountRecordType>
         dataSource={accountDataSource}
         columns={accountColumns}

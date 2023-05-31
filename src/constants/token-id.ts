@@ -1,5 +1,5 @@
-export const FtTokenId = 'SKYWALKER';
-export const NftTokenId = 'SKYWALKERNFT';
+export const FtTokenId = 'FT';
+export const NftTokenId = 'NFT';
 
 export const tokenIdOptions = [{
   label: FtTokenId,

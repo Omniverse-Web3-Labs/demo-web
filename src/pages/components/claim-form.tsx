@@ -44,7 +44,7 @@ export default function ClaimForm({ publicKey }: ClaimFormProps) {
     setSubmitting(true);
     if (tokenId === NftTokenId) {
       if (!itemId) {
-        message.error('请输入 Item ID');
+        message.error('Please input `Item ID`');
         setSubmitting(false);
         return;
       }
@@ -52,12 +52,12 @@ export default function ClaimForm({ publicKey }: ClaimFormProps) {
       const collectionId = (await api.query.uniques.tokenId2CollectionId(NftTokenId)).toJSON();
       const item = (await api.query.uniques.asset(collectionId, itemId)).toJSON();
       if (item) {
-        message.error('Item 不能领取，请重新输入');
+        message.error('This `Item ID` is unavailable, please input another one');
         setSubmitting(false);
         return;
       }
     }
-    const { data } = await axios.post<ClaimResponse>('http://3.122.90.113:7799/get_token', null, {
+    const { data } = await axios.post<ClaimResponse>('http://3.236.58.55:7788/get_token', null, {
       params: {
         publicKey,
         tokenId,
@@ -66,7 +66,7 @@ export default function ClaimForm({ publicKey }: ClaimFormProps) {
       },
     });
     if (data.code === 0) {
-      message.success('领取测试币成功');
+      message.success('Succeed!');
     } else {
       message.error(data.message, 10);
     }
