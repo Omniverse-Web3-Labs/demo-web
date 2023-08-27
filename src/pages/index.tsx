@@ -196,6 +196,11 @@ export default function Layout() {
     tokenId: FtTokenId,
     oNonce: ftTransactionCount,
     oBalance: polkadotBalance,
+  }, {
+    chainName: 'BTC Ordinals 6358',
+    tokenId: FtTokenId,
+    oNonce: ftTransactionCount,
+    oBalance: polkadotBalance,
   }];
 
   const nftDataSource: NFTRecordType[] = [...chains.map(({ name }, index) => ({
@@ -204,6 +209,10 @@ export default function Layout() {
     noNonce: nftTransactionCountReads.data?.[index]!.toString(),
   })), {
     chainName: 'Substrate',
+    tokenId: NftTokenId,
+    noNonce: nftTransactionCount,
+  }, {
+    chainName: 'BTC-Ordinal5-6358',
     tokenId: NftTokenId,
     noNonce: nftTransactionCount,
   }];
