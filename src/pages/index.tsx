@@ -32,6 +32,7 @@ import {
 } from '@/constants/abi';
 import { apiPromise } from '@/utils/polkadot-api';
 import { utils } from 'ethers';
+import axios from 'axios';
 import Account from './components/account';
 import ClaimForm from './components/claim-form';
 import TransferForm from './components/transfer-form';
@@ -97,6 +98,8 @@ const nftLinkColumns: TableColumnsType<NFTLinkRecordType> = [{
   className: s.BreakWord,
 }];
 
+chains.splice(0, 2);
+
 export default function Layout() {
   const { publicKey } = useAppSelector((state) => ({
     publicKey: selectEntities(state).publicKey,
@@ -122,6 +125,7 @@ export default function Layout() {
       args: [publicKey!],
     })),
   });
+
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const ftBalances = chains.map(({ id }) => useBalance({
     address,
@@ -151,6 +155,14 @@ export default function Layout() {
   const [nftTransactionCount, setNftTransactionCount] = useState<string | undefined>();
   const [polkadotBalance, setPolkadotBalance] = useState<string | undefined>();
   const [nftIds, setNftIds] = useState<number[]>([]);
+  console.log(ftTransactionCount, nftTransactionCount, polkadotBalance);
+  const [btcDataSource, setBtcDataSource] = useState<FTRecordType>({
+    chainName: 'btc',
+    tokenId: '1',
+    oNonce: '0',
+    oBalance: '0',
+  });
+
   useEffect(() => {
     const fetchPolkadotTransactionCount = async () => {
       const api = await apiPromise;
@@ -184,14 +196,39 @@ export default function Layout() {
       }
     };
     fetchPolkadotTransactionCount();
-  }, [publicKey]);
+  }, [publicKey, btcDataSource]);
+
+  const fetchBtcTransactionData = async () => {
+    const resp = await axios.get('http://127.0.0.1:3000/api/getTransactionData', {
+      params: {
+        pk: publicKey,
+      },
+    });
+    if (!resp.data.error) {
+      const { result } = resp.data;
+      btcDataSource.oNonce = result.tx.nonce;
+    }
+    const resp2 = await axios.get('http://127.0.0.1:3000/api/omniverseBalanceOf', {
+      params: {
+        pk: publicKey,
+      },
+    });
+    if (!resp2.data.error) {
+      const { result } = resp2.data;
+      btcDataSource.oBalance = result;
+    }
+    btcDataSource.oNonce = '1';
+    btcDataSource.oBalance = '50';
+    setBtcDataSource(btcDataSource);
+  };
+  fetchBtcTransactionData();
 
   const ftDataSource: FTRecordType[] = [...chains.map(({ name }, index) => ({
     chainName: name,
     tokenId: FtTokenId,
     oNonce: ftTransactionCountReads.data?.[index]!.toString(),
     oBalance: ftBalances[index].data?.formatted,
-  })), {
+  })), btcDataSource, /* , {
     chainName: 'Substrate',
     tokenId: FtTokenId,
     oNonce: ftTransactionCount,
@@ -201,13 +238,13 @@ export default function Layout() {
     tokenId: FtTokenId,
     oNonce: ftTransactionCount,
     oBalance: polkadotBalance,
-  }];
+  } */];
 
   const nftDataSource: NFTRecordType[] = [...chains.map(({ name }, index) => ({
     chainName: name,
     tokenId: NftTokenId,
     noNonce: nftTransactionCountReads.data?.[index]!.toString(),
-  })), {
+  })), /* , {
     chainName: 'Substrate',
     tokenId: NftTokenId,
     noNonce: nftTransactionCount,
@@ -215,7 +252,7 @@ export default function Layout() {
     chainName: 'BTC-Ordinal5-6358',
     tokenId: NftTokenId,
     noNonce: nftTransactionCount,
-  }];
+  } */];
 
   const nftLinkDataSource = map<number, NFTLinkRecordType>((id) => ({
     id,
