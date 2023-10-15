@@ -132,13 +132,13 @@ export default function Layout() {
   const ftONonceMap: Record<string, string> = {};
   if (ftTransactionCountReads.isSuccess) {
     chains.forEach(({ id }, index) => {
-      ftONonceMap[id] = ftTransactionCountReads.data![index]!.toString();
+      ftONonceMap[id] = ftTransactionCountReads.data![index]?.toString() || '';
     });
   }
   const nftONonceMap: Record<string, string> = {};
   if (nftTransactionCountReads.isSuccess) {
     chains.forEach(({ id }, index) => {
-      nftONonceMap[id] = nftTransactionCountReads.data![index]!.toString();
+      nftONonceMap[id] = nftTransactionCountReads.data![index]?.toString() || '';
     });
   }
   const oBalanceMap: Record<string, string> = {};
@@ -189,7 +189,7 @@ export default function Layout() {
   const ftDataSource: FTRecordType[] = [...chains.map(({ name }, index) => ({
     chainName: name,
     tokenId: FtTokenId,
-    oNonce: ftTransactionCountReads.data?.[index]!.toString(),
+    oNonce: ftTransactionCountReads.data?.[index]?.toString(),
     oBalance: ftBalances[index].data?.formatted,
   })), {
     chainName: 'Substrate',
@@ -206,7 +206,7 @@ export default function Layout() {
   const nftDataSource: NFTRecordType[] = [...chains.map(({ name }, index) => ({
     chainName: name,
     tokenId: NftTokenId,
-    noNonce: nftTransactionCountReads.data?.[index]!.toString(),
+    noNonce: nftTransactionCountReads.data?.[index]?.toString(),
   })), {
     chainName: 'Substrate',
     tokenId: NftTokenId,
