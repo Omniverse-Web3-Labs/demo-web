@@ -4,6 +4,7 @@ import React, {
 } from 'react';
 import {
   Table,
+  TableColumnsType,
 } from 'antd';
 import {
   chains,
