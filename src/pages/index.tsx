@@ -3,6 +3,9 @@ import React, {
   useState,
 } from 'react';
 import {
+  Table,
+} from 'antd';
+import {
   chains,
   chainInfoMap,
 } from '@/constants/chains';
@@ -36,19 +39,19 @@ interface FTRecordType {
   oBalance?: string
 }
 
-// const ftColumns: TableColumnsType<FTRecordType> = [{
-//   title: 'Chain',
-//   dataIndex: 'chainName',
-// }, {
-//   title: 'Asset ID',
-//   dataIndex: 'tokenId',
-// }, {
-//   title: 'FT O-Nonce',
-//   dataIndex: 'oNonce',
-// }, {
-//   title: 'O-Balance',
-//   dataIndex: 'oBalance',
-// }];
+const ftColumns: TableColumnsType<FTRecordType> = [{
+  title: 'Chain',
+  dataIndex: 'chainName',
+}, {
+  title: 'Asset ID',
+  dataIndex: 'tokenId',
+}, {
+  title: 'FT O-Nonce',
+  dataIndex: 'oNonce',
+}, {
+  title: 'O-Balance',
+  dataIndex: 'oBalance',
+}];
 
 // const nftColumns: TableColumnsType<NFTRecordType> = [{
 //   title: 'Chain',
@@ -76,8 +79,6 @@ interface FTRecordType {
 //   render: (nftScanLink) => <a href={nftScanLink} target="_blank" rel="noreferrer">{nftScanLink}</a>,
 //   className: s.BreakWord,
 // }];
-
-chains.splice(0, 2);
 
 export default function Layout() {
   const { publicKey } = useAppSelector((state) => ({
@@ -129,9 +130,9 @@ export default function Layout() {
       oBalanceMap[id] = ftBalances[index]!.data!.formatted;
     }
   });
-  const [, setFtTransactionCount] = useState<string | undefined>();
+  const [ftTransactionCount, setFtTransactionCount] = useState<string | undefined>();
   const [, setNftTransactionCount] = useState<string | undefined>();
-  const [, setPolkadotBalance] = useState<string | undefined>();
+  const [polkadotBalance, setPolkadotBalance] = useState<string | undefined>();
   const [, setNftIds] = useState<number[]>([]);
   const [btcDataSource, setBtcDataSource] = useState<FTRecordType>({
     chainName: 'btc',
@@ -176,16 +177,16 @@ export default function Layout() {
   }, [publicKey, btcDataSource]);
 
   const fetchBtcTransactionData = async () => {
-    const resp = await axios.get('http://127.0.0.1:3000/api/getTransactionData', {
+    const resp = await axios.get('http://198.11.168.201:3000/api/getTransactionCount', {
       params: {
         pk: publicKey,
       },
     });
     if (!resp.data.error) {
       const { result } = resp.data;
-      btcDataSource.oNonce = result.tx.nonce;
+      btcDataSource.oNonce = result;
     }
-    const resp2 = await axios.get('http://127.0.0.1:3000/api/omniverseBalanceOf', {
+    const resp2 = await axios.get('http://198.11.168.201:3000/api/omniverseBalanceOf', {
       params: {
         pk: publicKey,
       },
@@ -194,28 +195,26 @@ export default function Layout() {
       const { result } = resp2.data;
       btcDataSource.oBalance = result;
     }
-    btcDataSource.oNonce = '1';
-    btcDataSource.oBalance = '50';
     setBtcDataSource(btcDataSource);
   };
   fetchBtcTransactionData();
 
-  // const ftDataSource: FTRecordType[] = [...chains.map(({ name }, index) => ({
-  //   chainName: name,
-  //   tokenId: FtTokenId,
-  //   oNonce: ftTransactionCountReads.data?.[index]?.toString(),
-  //   oBalance: ftBalances[index].data?.formatted,
-  // })), {
-  //   chainName: 'Substrate',
-  //   tokenId: FtTokenId,
-  //   oNonce: ftTransactionCount,
-  //   oBalance: polkadotBalance,
-  // }, {
-  //   chainName: 'BTC Ordinals 6358',
-  //   tokenId: FtTokenId,
-  //   oNonce: ftTransactionCount,
-  //   oBalance: polkadotBalance,
-  // }];
+  const ftDataSource: FTRecordType[] = [...chains.map(({ name }, index) => ({
+    chainName: name,
+    tokenId: FtTokenId,
+    oNonce: ftTransactionCountReads.data?.[index]?.toString(),
+    oBalance: ftBalances[index].data?.formatted,
+  })), {
+    chainName: 'Substrate',
+    tokenId: FtTokenId,
+    oNonce: ftTransactionCount,
+    oBalance: polkadotBalance,
+  }, {
+    chainName: 'BTC Ordinals 6358',
+    tokenId: FtTokenId,
+    oNonce: btcDataSource.oNonce,
+    oBalance: (btcDataSource.oBalance ? BigInt(btcDataSource.oBalance!) / BigInt(10 ** 12) : 0).toString(),
+  }];
 
   // const nftDataSource: NFTRecordType[] = [...chains.map(({ name }, index) => ({
   //   chainName: name,
@@ -255,13 +254,13 @@ export default function Layout() {
         </>
       )} */}
 
-      {/* <h2 className={s.Title}>Omniverse Fungible Asset</h2>
+      <h2 className={s.Title}>Omniverse Fungible Asset</h2>
       <Table<FTRecordType>
         dataSource={ftDataSource}
         columns={ftColumns}
         rowKey="chainName"
         pagination={false}
-      /> */}
+      />
 
       {/* <h2 className={s.Title}>Omniverse Non-Fungible Asset</h2>
       <Table<NFTRecordType>
