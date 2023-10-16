@@ -66,7 +66,26 @@ export const mumbai: Chain = {
     },
   },
 };
-
+/*
+export const btc: Chain = {
+  id: 1,
+  name: 'Btc',
+  network: 'Btc',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'btc',
+    symbol: 'btc',
+  },
+  rpcUrls: {
+    default: {
+      http: ['http://localhost:3000/rpc'],
+    },
+    public: {
+      http: ['http://localhost:3000/rpc'],
+    },
+  },
+};
+*/
 // export const chains = [bscTestnet, platON, sepolia, mumbai];
 export const chains = [sepolia];
 
@@ -87,14 +106,22 @@ export const chainInfoMap: Record<string, ChainInfo> = {
     nftAddress: '0x6517495b90acb1062076270EDE4ed772fdE277b9',
     omniverseChainId: 4,
   },
+  /*
   [sepolia.id]: {
     ftAddress: '0x02A964151eB83661302629AfE6c879195b42b335',
     nftAddress: '0xdCC3ec86A5d6C151054D89B8759F4772e703909a',
     omniverseChainId: 5,
   },
+  */
   [mumbai.id]: {
     ftAddress: '0xa1278174CF8f35B72f87C351ADC9E991470c6160',
     nftAddress: '0xc0caE974357948d046A46Ac6c286E4BDE016fC6B',
     omniverseChainId: 6,
   },
+  /*
+  [btc.id]: {
+    ftAddress: '0x4a41672e9a217c3193b12483400b03ce1851e145',
+    nftAddress: '0x4a41672e9a217c3193b12483400b03ce1851e145',
+    omniverseChainId: 2,
+  }, */
 };

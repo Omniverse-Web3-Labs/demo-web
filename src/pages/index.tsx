@@ -23,10 +23,18 @@ import {
 } from '@/constants/abi';
 import { apiPromise } from '@/utils/polkadot-api';
 import { utils } from 'ethers';
+import axios from 'axios';
 import Account from './components/account';
 import ClaimForm from './components/claim-form';
 // import TransferForm from './components/transfer-form';
 import s from './index.module.less';
+
+interface FTRecordType {
+  chainName: string
+  tokenId: string
+  oNonce?: string
+  oBalance?: string
+}
 
 // const ftColumns: TableColumnsType<FTRecordType> = [{
 //   title: 'Chain',
@@ -68,6 +76,8 @@ import s from './index.module.less';
 //   render: (nftScanLink) => <a href={nftScanLink} target="_blank" rel="noreferrer">{nftScanLink}</a>,
 //   className: s.BreakWord,
 // }];
+
+chains.splice(0, 2);
 
 export default function Layout() {
   const { publicKey } = useAppSelector((state) => ({
@@ -123,6 +133,13 @@ export default function Layout() {
   const [, setNftTransactionCount] = useState<string | undefined>();
   const [, setPolkadotBalance] = useState<string | undefined>();
   const [, setNftIds] = useState<number[]>([]);
+  const [btcDataSource, setBtcDataSource] = useState<FTRecordType>({
+    chainName: 'btc',
+    tokenId: '1',
+    oNonce: '0',
+    oBalance: '0',
+  });
+
   useEffect(() => {
     const fetchPolkadotTransactionCount = async () => {
       const api = await apiPromise;
@@ -156,7 +173,32 @@ export default function Layout() {
       }
     };
     fetchPolkadotTransactionCount();
-  }, [publicKey]);
+  }, [publicKey, btcDataSource]);
+
+  const fetchBtcTransactionData = async () => {
+    const resp = await axios.get('http://127.0.0.1:3000/api/getTransactionData', {
+      params: {
+        pk: publicKey,
+      },
+    });
+    if (!resp.data.error) {
+      const { result } = resp.data;
+      btcDataSource.oNonce = result.tx.nonce;
+    }
+    const resp2 = await axios.get('http://127.0.0.1:3000/api/omniverseBalanceOf', {
+      params: {
+        pk: publicKey,
+      },
+    });
+    if (!resp2.data.error) {
+      const { result } = resp2.data;
+      btcDataSource.oBalance = result;
+    }
+    btcDataSource.oNonce = '1';
+    btcDataSource.oBalance = '50';
+    setBtcDataSource(btcDataSource);
+  };
+  fetchBtcTransactionData();
 
   // const ftDataSource: FTRecordType[] = [...chains.map(({ name }, index) => ({
   //   chainName: name,
