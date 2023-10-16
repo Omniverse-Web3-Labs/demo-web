@@ -3,12 +3,6 @@ import React, {
   useState,
 } from 'react';
 import {
-  Table,
-  TableColumnsType,
-} from 'antd';
-import {
-  mumbai,
-  platON,
   chains,
   chainInfoMap,
 } from '@/constants/chains';
@@ -16,9 +10,6 @@ import {
   NftTokenId,
   FtTokenId,
 } from '@/constants/token-id';
-import {
-  map,
-} from 'lodash/fp';
 import { useAppSelector } from '@/redux';
 import { selectEntities } from '@/redux/account';
 import {
@@ -28,74 +19,55 @@ import {
 } from 'wagmi';
 import {
   ftAbi,
-  nftAbi,
+  // nftAbi,
 } from '@/constants/abi';
 import { apiPromise } from '@/utils/polkadot-api';
 import { utils } from 'ethers';
 import Account from './components/account';
 import ClaimForm from './components/claim-form';
-import TransferForm from './components/transfer-form';
+// import TransferForm from './components/transfer-form';
 import s from './index.module.less';
 
-interface FTRecordType {
-  chainName: string
-  tokenId: string
-  oNonce?: string
-  oBalance?: string
-}
+// const ftColumns: TableColumnsType<FTRecordType> = [{
+//   title: 'Chain',
+//   dataIndex: 'chainName',
+// }, {
+//   title: 'Asset ID',
+//   dataIndex: 'tokenId',
+// }, {
+//   title: 'FT O-Nonce',
+//   dataIndex: 'oNonce',
+// }, {
+//   title: 'O-Balance',
+//   dataIndex: 'oBalance',
+// }];
 
-interface NFTRecordType {
-  chainName: string
-  tokenId: string
-  noNonce?: string
-}
+// const nftColumns: TableColumnsType<NFTRecordType> = [{
+//   title: 'Chain',
+//   dataIndex: 'chainName',
+// }, {
+//   title: 'Asset ID',
+//   dataIndex: 'tokenId',
+// }, {
+//   title: 'NO-Nonce',
+//   dataIndex: 'noNonce',
+// }];
 
-interface NFTLinkRecordType {
-  id: number
-  openSeaLink: string
-  nftScanLink: string
-}
-
-const ftColumns: TableColumnsType<FTRecordType> = [{
-  title: 'Chain',
-  dataIndex: 'chainName',
-}, {
-  title: 'Asset ID',
-  dataIndex: 'tokenId',
-}, {
-  title: 'FT O-Nonce',
-  dataIndex: 'oNonce',
-}, {
-  title: 'O-Balance',
-  dataIndex: 'oBalance',
-}];
-
-const nftColumns: TableColumnsType<NFTRecordType> = [{
-  title: 'Chain',
-  dataIndex: 'chainName',
-}, {
-  title: 'Asset ID',
-  dataIndex: 'tokenId',
-}, {
-  title: 'NO-Nonce',
-  dataIndex: 'noNonce',
-}];
-
-const nftLinkColumns: TableColumnsType<NFTLinkRecordType> = [{
-  title: 'MNFT ID',
-  dataIndex: 'id',
-  width: 100,
-}, {
-  title: 'OpenSea Link',
-  dataIndex: 'openSeaLink',
-  render: (openSeaLink) => <a href={openSeaLink} target="_blank" rel="noreferrer">{openSeaLink}</a>,
-  className: s.BreakWord,
-}, {
-  title: 'NFT Scan Link',
-  dataIndex: 'nftScanLink',
-  render: (nftScanLink) => <a href={nftScanLink} target="_blank" rel="noreferrer">{nftScanLink}</a>,
-  className: s.BreakWord,
-}];
+// const nftLinkColumns: TableColumnsType<NFTLinkRecordType> = [{
+//   title: 'MNFT ID',
+//   dataIndex: 'id',
+//   width: 100,
+// }, {
+//   title: 'OpenSea Link',
+//   dataIndex: 'openSeaLink',
+//   render: (openSeaLink) => <a href={openSeaLink} target="_blank" rel="noreferrer">{openSeaLink}</a>,
+//   className: s.BreakWord,
+// }, {
+//   title: 'NFT Scan Link',
+//   dataIndex: 'nftScanLink',
+//   render: (nftScanLink) => <a href={nftScanLink} target="_blank" rel="noreferrer">{nftScanLink}</a>,
+//   className: s.BreakWord,
+// }];
 
 export default function Layout() {
   const { publicKey } = useAppSelector((state) => ({
@@ -112,16 +84,16 @@ export default function Layout() {
       args: [publicKey!],
     })),
   });
-  const nftTransactionCountReads = useContractReads({
-    enabled: !!publicKey,
-    contracts: chains.map(({ id }) => ({
-      address: chainInfoMap[id].nftAddress,
-      functionName: 'getTransactionCount',
-      chainId: id,
-      abi: nftAbi,
-      args: [publicKey!],
-    })),
-  });
+  // const nftTransactionCountReads = useContractReads({
+  //   enabled: !!publicKey,
+  //   contracts: chains.map(({ id }) => ({
+  //     address: chainInfoMap[id].nftAddress,
+  //     functionName: 'getTransactionCount',
+  //     chainId: id,
+  //     abi: nftAbi,
+  //     args: [publicKey!],
+  //   })),
+  // });
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const ftBalances = chains.map(({ id }) => useBalance({
     address,
@@ -135,22 +107,22 @@ export default function Layout() {
       ftONonceMap[id] = ftTransactionCountReads.data![index]?.toString() || '';
     });
   }
-  const nftONonceMap: Record<string, string> = {};
-  if (nftTransactionCountReads.isSuccess) {
-    chains.forEach(({ id }, index) => {
-      nftONonceMap[id] = nftTransactionCountReads.data![index]?.toString() || '';
-    });
-  }
+  // const nftONonceMap: Record<string, string> = {};
+  // if (nftTransactionCountReads.isSuccess) {
+  //   chains.forEach(({ id }, index) => {
+  //     nftONonceMap[id] = nftTransactionCountReads.data![index]?.toString() || '';
+  //   });
+  // }
   const oBalanceMap: Record<string, string> = {};
   chains.forEach(({ id }, index) => {
     if (ftBalances[index].isSuccess) {
       oBalanceMap[id] = ftBalances[index]!.data!.formatted;
     }
   });
-  const [ftTransactionCount, setFtTransactionCount] = useState<string | undefined>();
-  const [nftTransactionCount, setNftTransactionCount] = useState<string | undefined>();
-  const [polkadotBalance, setPolkadotBalance] = useState<string | undefined>();
-  const [nftIds, setNftIds] = useState<number[]>([]);
+  const [, setFtTransactionCount] = useState<string | undefined>();
+  const [, setNftTransactionCount] = useState<string | undefined>();
+  const [, setPolkadotBalance] = useState<string | undefined>();
+  const [, setNftIds] = useState<number[]>([]);
   useEffect(() => {
     const fetchPolkadotTransactionCount = async () => {
       const api = await apiPromise;
@@ -186,42 +158,42 @@ export default function Layout() {
     fetchPolkadotTransactionCount();
   }, [publicKey]);
 
-  const ftDataSource: FTRecordType[] = [...chains.map(({ name }, index) => ({
-    chainName: name,
-    tokenId: FtTokenId,
-    oNonce: ftTransactionCountReads.data?.[index]?.toString(),
-    oBalance: ftBalances[index].data?.formatted,
-  })), {
-    chainName: 'Substrate',
-    tokenId: FtTokenId,
-    oNonce: ftTransactionCount,
-    oBalance: polkadotBalance,
-  }, {
-    chainName: 'BTC Ordinals 6358',
-    tokenId: FtTokenId,
-    oNonce: ftTransactionCount,
-    oBalance: polkadotBalance,
-  }];
+  // const ftDataSource: FTRecordType[] = [...chains.map(({ name }, index) => ({
+  //   chainName: name,
+  //   tokenId: FtTokenId,
+  //   oNonce: ftTransactionCountReads.data?.[index]?.toString(),
+  //   oBalance: ftBalances[index].data?.formatted,
+  // })), {
+  //   chainName: 'Substrate',
+  //   tokenId: FtTokenId,
+  //   oNonce: ftTransactionCount,
+  //   oBalance: polkadotBalance,
+  // }, {
+  //   chainName: 'BTC Ordinals 6358',
+  //   tokenId: FtTokenId,
+  //   oNonce: ftTransactionCount,
+  //   oBalance: polkadotBalance,
+  // }];
 
-  const nftDataSource: NFTRecordType[] = [...chains.map(({ name }, index) => ({
-    chainName: name,
-    tokenId: NftTokenId,
-    noNonce: nftTransactionCountReads.data?.[index]?.toString(),
-  })), {
-    chainName: 'Substrate',
-    tokenId: NftTokenId,
-    noNonce: nftTransactionCount,
-  }, {
-    chainName: 'BTC-Ordinal5-6358',
-    tokenId: NftTokenId,
-    noNonce: nftTransactionCount,
-  }];
+  // const nftDataSource: NFTRecordType[] = [...chains.map(({ name }, index) => ({
+  //   chainName: name,
+  //   tokenId: NftTokenId,
+  //   noNonce: nftTransactionCountReads.data?.[index]?.toString(),
+  // })), {
+  //   chainName: 'Substrate',
+  //   tokenId: NftTokenId,
+  //   noNonce: nftTransactionCount,
+  // }, {
+  //   chainName: 'BTC-Ordinal5-6358',
+  //   tokenId: NftTokenId,
+  //   noNonce: nftTransactionCount,
+  // }];
 
-  const nftLinkDataSource = map<number, NFTLinkRecordType>((id) => ({
-    id,
-    openSeaLink: `https://testnets.opensea.io/assets/mumbai/${chainInfoMap[mumbai.id].nftAddress}/${id}`,
-    nftScanLink: `https://platon.nftscan.com/${chainInfoMap[platON.id].nftAddress}/${id}`,
-  }))(nftIds);
+  // const nftLinkDataSource = map<number, NFTLinkRecordType>((id) => ({
+  //   id,
+  //   openSeaLink: `https://testnets.opensea.io/assets/mumbai/${chainInfoMap[mumbai.id].nftAddress}/${id}`,
+  //   nftScanLink: `https://platon.nftscan.com/${chainInfoMap[platON.id].nftAddress}/${id}`,
+  // }))(nftIds);
 
   return (
     <div className={s.Index}>
@@ -234,22 +206,22 @@ export default function Layout() {
         </>
       )}
 
-      {publicKey && address && (
+      {/* {publicKey && address && (
         <>
           <h2 className={s.Title}>Present as a Gift</h2>
           <TransferForm publicKey={publicKey} address={address} />
         </>
-      )}
+      )} */}
 
-      <h2 className={s.Title}>Omniverse Fungible Asset</h2>
+      {/* <h2 className={s.Title}>Omniverse Fungible Asset</h2>
       <Table<FTRecordType>
         dataSource={ftDataSource}
         columns={ftColumns}
         rowKey="chainName"
         pagination={false}
-      />
+      /> */}
 
-      <h2 className={s.Title}>Omniverse Non-Fungible Asset</h2>
+      {/* <h2 className={s.Title}>Omniverse Non-Fungible Asset</h2>
       <Table<NFTRecordType>
         dataSource={nftDataSource}
         columns={nftColumns}
@@ -263,7 +235,7 @@ export default function Layout() {
         columns={nftLinkColumns}
         rowKey="id"
         pagination={false}
-      />
+      /> */}
     </div>
   );
 }

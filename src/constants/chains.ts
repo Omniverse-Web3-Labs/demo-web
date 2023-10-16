@@ -1,12 +1,10 @@
 import {
   // bscTestnet,
-  sepolia,
   Chain,
 } from 'wagmi/chains';
 
 export {
   bscTestnet,
-  sepolia,
 } from 'wagmi/chains';
 export type { Chain } from 'wagmi/chains';
 
@@ -31,6 +29,25 @@ export const platON: Chain = {
   },
 };
 
+export const sepolia: Chain = {
+  id: 11155111,
+  name: 'Sepolia',
+  network: 'Sepolia',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'ETH',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://eth.getblock.io/f19d7993-2e1e-44eb-a48e-bc55356c5e78/sepolia/'],
+    },
+    public: {
+      http: ['https://eth.getblock.io/f19d7993-2e1e-44eb-a48e-bc55356c5e78/sepolia/'],
+    },
+  },
+};
+
 export const mumbai: Chain = {
   id: 80001,
   name: 'Mumbai',
@@ -51,7 +68,7 @@ export const mumbai: Chain = {
 };
 
 // export const chains = [bscTestnet, platON, sepolia, mumbai];
-export const chains = [platON, sepolia, mumbai];
+export const chains = [sepolia];
 
 export interface ChainInfo {
   ftAddress: `0x${string}`
@@ -71,7 +88,7 @@ export const chainInfoMap: Record<string, ChainInfo> = {
     omniverseChainId: 4,
   },
   [sepolia.id]: {
-    ftAddress: '0xa1278174CF8f35B72f87C351ADC9E991470c6160',
+    ftAddress: '0x02A964151eB83661302629AfE6c879195b42b335',
     nftAddress: '0xdCC3ec86A5d6C151054D89B8759F4772e703909a',
     omniverseChainId: 5,
   },

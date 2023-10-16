@@ -57,7 +57,7 @@ export default function ClaimForm({ publicKey }: ClaimFormProps) {
         return;
       }
     }
-    const { data } = await axios.post<ClaimResponse>('http://3.236.58.55:7788/get_token', null, {
+    const { data } = await axios.post<ClaimResponse>('http://198.11.168.201:7788/get_token', null, {
       params: {
         publicKey,
         tokenId,
