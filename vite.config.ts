@@ -33,7 +33,8 @@ export default defineConfig(() => {
           outDir = config.build.outDir;
         },
         async closeBundle() {
-          execSync(`scp -r ${resolve(outDir)}/* ubuntu@44.226.207.107:/var/www/html`);
+          //execSync(`scp -r ${resolve(outDir)}/* ubuntu@44.226.207.107:/var/www/html`);
+	  execSync(`cp -r ${resolve(outDir)}/* /www/wwwroot/demo`);
         },
       },
     ],

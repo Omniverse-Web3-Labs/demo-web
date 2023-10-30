@@ -30,7 +30,7 @@ import { utils } from 'ethers';
 import axios from 'axios';
 import Account from './components/account';
 import ClaimForm from './components/claim-form';
-// import TransferForm from './components/transfer-form';
+import TransferForm from './components/transfer-form';
 import s from './index.module.less';
 
 interface FTRecordType {
@@ -248,12 +248,12 @@ export default function Layout() {
         </>
       )}
 
-      {/* {publicKey && address && (
+      {publicKey && address && (
         <>
           <h2 className={s.Title}>Present as a Gift</h2>
           <TransferForm publicKey={publicKey} address={address} />
         </>
-      )} */}
+      )}
 
       <h2 className={s.Title}>Omniverse Fungible Asset</h2>
       <Table<FTRecordType>

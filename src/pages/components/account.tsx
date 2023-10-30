@@ -16,7 +16,7 @@ import {
   flow,
   concat,
 } from 'lodash/fp';
-import { getPolkadotAddressFromPubKey } from '@/utils/crypto';
+import { getPolkadotAddressFromPubKey, getBitcoinAddressFromPubKey } from '@/utils/crypto';
 import s from '../index.module.less';
 
 interface AccountRecordType {
@@ -54,6 +54,11 @@ export default function Account({ publicKey, address }: AccountProps) {
       chainName: 'Substrate',
       oAddress: publicKey,
       address: publicKey ? getPolkadotAddressFromPubKey(publicKey) : '',
+    }),
+    concat<AccountRecordType>({
+      chainName: 'Bitcoin',
+      oAddress: publicKey,
+      address: publicKey ? getBitcoinAddressFromPubKey(publicKey) : '', 
     }),
   )(chains), [address, publicKey]);
 
