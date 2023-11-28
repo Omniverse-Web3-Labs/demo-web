@@ -194,7 +194,7 @@ export default function Layout() {
     });
     if (!resp2.data.error) {
       const { result } = resp2.data;
-      btcDataSource.oBalance = result;
+      btcDataSource.oBalance = utils.formatUnits(result.toString(), '12');
     }
     setBtcDataSource(btcDataSource);
   };
@@ -214,7 +214,7 @@ export default function Layout() {
     chainName: 'BTC Ordinals 6358',
     tokenId: FtTokenId,
     oNonce: btcDataSource.oNonce,
-    oBalance: (btcDataSource.oBalance ? BigInt(btcDataSource.oBalance!) / BigInt(10 ** 12) : 0).toString(),
+    oBalance: btcDataSource.oBalance,
   }];
 
   // const nftDataSource: NFTRecordType[] = [...chains.map(({ name }, index) => ({
