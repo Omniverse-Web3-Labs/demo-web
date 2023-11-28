@@ -2,8 +2,9 @@ import {
   encodeAddress,
   blake2AsU8a,
 } from '@polkadot/util-crypto';
-import crypto from "crypto";
-import {bech32} from "bech32";
+import crypto from 'crypto';
+import { bech32 } from 'bech32';
+import { Buffer } from 'buffer';
 
 // eslint-disable-next-line arrow-body-style
 export const personalSign = async (message: string, address: `0x${string}`): Promise<`0x${string}`> => {
@@ -36,21 +37,14 @@ export const getPolkadotAddressFromPubKey = (publicKey: string) => {
   throw new Error(`Public Key needs to be hex string with length: 66(no 0x), 68(with 0x), 128(no 0x), 130, 132(with 0x), but got ${publicKey.length}`);
 };
 export const getBitcoinAddressFromPubKey = (publicKey: string) => {
-	if (publicKey.substr(0, 2) == '0x') {
-		publicKey = publicKey.substr(2);
-	}
-  const sha256Digest = crypto
-    .createHash("sha256")
-      .update(publicKey, "hex")
-        .digest("hex");
-
-	const ripemd160Digest = crypto
-	  .createHash("ripemd160")
-	    .update(sha256Digest, "hex")
-	      .digest("hex");
-
-	      const bech32Words = bech32.toWords(Buffer.from(ripemd160Digest, "hex"));
-	      const words = new Uint8Array([0, ...bech32Words]);
-	      var address = bech32.encode("tb", words);
-	      return address;
-}
+  let pk: string = '';
+  if (publicKey.substr(0, 2) === '0x') {
+    pk = publicKey.substr(2);
+  }
+  const sha256Digest = crypto.createHash('sha256').update(pk, 'hex').digest('hex');
+  const ripemd160Digest = crypto.createHash('ripemd160').update(sha256Digest, 'hex').digest('hex');
+  const bech32Words = bech32.toWords(Buffer.from(ripemd160Digest, 'hex'));
+  const words = new Uint8Array([0, ...bech32Words]);
+  const address = bech32.encode('tb', words);
+  return address;
+};

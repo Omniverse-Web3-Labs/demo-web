@@ -13,6 +13,7 @@ import {
   useAccount,
   useConnect,
   useDisconnect,
+  useSwitchNetwork,
 } from 'wagmi';
 import { InjectedConnector } from 'wagmi/connectors/injected';
 import {
@@ -31,8 +32,14 @@ const { Header, Content, Footer } = AntdLayout;
 
 export default function Layout() {
   const { isConnected, address } = useAccount();
+  const { switchNetwork } = useSwitchNetwork();
   const { connect } = useConnect({
     connector: injectedConnector,
+    onSuccess(data) {
+      console.log('Connect', data);
+      switchNetwork?.(11155111);
+    },
+
   });
   const { disconnect } = useDisconnect();
   const toggleConnection = useCallback(() => {

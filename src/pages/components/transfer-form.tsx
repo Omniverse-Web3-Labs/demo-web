@@ -10,7 +10,6 @@ import {
   Radio,
 } from 'antd';
 import {
-  bscTestnet,
   chainInfoMap,
   chains,
 } from '@/constants/chains';
@@ -25,8 +24,12 @@ import BN from 'bn.js';
 import {
   readContract,
   writeContract,
+  getNetwork,
   prepareWriteContract,
 } from 'wagmi/actions';
+import {
+  useSwitchNetwork,
+} from 'wagmi';
 import { personalSign } from '@/utils/crypto';
 import {
   FtTokenId,
@@ -55,7 +58,7 @@ interface ValuesType {
 
 const defaultValues: ValuesType = {
   tokenId: FtTokenId,
-  chainId: bscTestnet.id.toString(),
+  chainId: chains[0].id.toString(),
 };
 
 const getHashData = (
@@ -78,11 +81,18 @@ const getHashData = (
 ]).toString('hex');
 
 export default function TransferForm({ publicKey, address }: TransferFormProps) {
+  const { switchNetwork } = useSwitchNetwork();
   const [submitting, setSubmitting] = useState(false);
   const [form] = useForm<ValuesType>();
   const tokenId = useWatch('tokenId', form);
   const onFinish = useCallback(async ({ chainId, amount, to }: ValuesType) => {
     if (!publicKey) {
+      return;
+    }
+    const { chain } = getNetwork();
+    console.log('chain', chain);
+    if (chain?.id !== parseInt(chainId, 10)) {
+      switchNetwork?.(parseInt(chainId, 10));
       return;
     }
     setSubmitting(true);
@@ -125,7 +135,7 @@ export default function TransferForm({ publicKey, address }: TransferFormProps) 
     const result = await writeContract(config);
     console.log(result);
     setSubmitting(false);
-  }, [publicKey, address, tokenId]);
+  }, [publicKey, address, tokenId, switchNetwork]);
 
   return (
     <Form
